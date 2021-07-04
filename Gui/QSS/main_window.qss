@@ -1,0 +1,71 @@
+QGroupBox {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+    border: 1px solid gray;
+    border-radius: 5px;
+    margin-top: 6ex; /* leave space at the top for the title */
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 5px;
+}
+
+QPushButton {
+    border-radius: 5px;
+    border: 1px solid #ACACAC;
+    font-size: 14px;
+}
+
+QPushButton:hover{
+        background-color: #E0E0E0;
+}
+
+QListView {
+    show-decoration-selected: 1; /* make the selection span the entire width of the view */
+}
+
+QListView::item:selected {
+    border: none;
+    color : white;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #11244B, stop: 1 #5D75A5);
+}
+
+QListView::item:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #FAFBFE, stop: 1 #DCDEF1);
+    color : black;
+}
+
+QListView::item:selected:active {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #11244B, stop: 1 #5D75A5);
+    color : white;
+}
+QMenu {
+    background-color: white;
+    margin: 2px; /* some spacing around the menu */
+}
+
+QMenu::item {
+    padding: 2px 25px 2px 20px;
+    border: 1px solid transparent; /* reserve space for selection border */
+}
+
+QMenu::item:selected {
+    color : white;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #11244B, stop: 1 #5D75A5);
+}
+
+QMenuBar {
+    spacing: 10px;
+}
+
+
+QTableView {
+    selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #11244B, stop: 1 #5D75A5);
+    selection-color: white;
+}
