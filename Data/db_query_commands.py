@@ -107,11 +107,14 @@ QUERY_INSERT_PROJECT = 'INSERT INTO projects(' \
                        'VALUES(?,?,?,?,?,?,?,?,?,?,?,?);'
 
 QUERY_INSERT_TASK = 'INSERT INTO tasks(project_id, register_no, parcel_no, map_sheet_no, area_name, owner_data, ' \
-                    'notice) VALUES(?,?,?,?,?,?,?); '
-QUERY_INSERT_DEVICE = 'INSERT INTO devices(task_id, device_type, device_width, device_long, regulation_type, ' \
-                      'notice) VALUES(?,?,?,?,?,?); '
+                    'notice) VALUES(?,?,?,?,?,?,?);'
+
+QUERY_INSERT_DEVICE = 'INSERT INTO devices(task_id, device_type, device_long, device_width, regulation_type, ' \
+                      'notice) VALUES(?,?,?,?,?,?);'
+
 QUERY_INSERT_ATTACHMENT = 'INSERT INTO attachments(project_id, document_name, ' \
                           'document_original, document_count, notice) VALUES(?,?,?,?,?);'
+
 QUERY_INSERT_USER = 'INSERT INTO users(name, email, password, phone) VALUES(?,?,?,?);'
 
 QUERY_INSERT_TASK_TYPE = 'INSERT OR IGNORE INTO dict_tasks_names VALUES (?);'
@@ -175,8 +178,10 @@ QUERY_SELECT_ALL_PROJECTS = 'SELECT id, nr_sap, nr_psp, nr_sap_work_hours, proje
                             'place, street, engineer_name, registration_date, up_type, up_no, notice FROM projects; '
 QUERY_SELECT_DEVICE = 'SELECT id, task_id, device_type, device_width, device_long, regulation_type, notice FROM ' \
                       'devices WHERE id = ?; '
-QUERY_SELECT_DEVICES = 'SELECT id, task_id, device_type, device_width, device_long, regulation_type, notice FROM ' \
+
+QUERY_SELECT_DEVICES = 'SELECT id, device_type, device_long, device_width, regulation_type, notice FROM ' \
                             'devices WHERE task_id = ?; '
+
 QUERY_SELECT_ATTACHMENT = 'SELECT id, project_id, document_name FROM attachments WHERE id = ?; '
 QUERY_SELECT_ATTACHMENTS = 'SELECT id, project_id, document_name FROM attachments WHERE project_id = ?; '
 QUERY_SELECT_USER = 'SELECT name, email, password, phone FROM users;'

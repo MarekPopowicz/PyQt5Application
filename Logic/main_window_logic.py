@@ -38,6 +38,7 @@ class MainWindowLogic:
 
     def update_task_table_view(self, operation_type, task_id):
         task_table_widget = self.parent.findChild(QTableWidget, Const.TASK_TITLE)
+
         if operation_type == 'set':
             tasks_list = self.task_logic.get_tasks_list(str(self.parent.current_project_id))
             task_table_widget.setRowCount(0)
@@ -74,6 +75,37 @@ class MainWindowLogic:
                 table_item_appender(task_table_widget, task_data)
                 task_table_widget.object_id = int(task_id)
                 task_table_widget.selectRow(task_table_widget.rowCount() - 1)
+
+    def update_device_table_view(self, operation_type, device_id):
+        current_task_id = self.parent.findChild(QTableWidget, Const.TASK_TITLE).object_id
+        device_table_widget = self.parent.findChild(QTableWidget, Const.DEVICE_TITLE)
+
+        if operation_type == 'set':
+            if current_task_id != 0:
+                device_list = self.device_logic.get_device_list(str(current_task_id))
+                device_table_widget.setRowCount(0)
+                if len(device_list) > 0:
+                    device_table_widget.object_id = int(device_list[0][0])
+                    for device in device_list:
+                        table_item_appender(device_table_widget, device)
+                    device_table_widget.selectRow(0)
+                else:
+                    device_table_widget.object_id = int(device_id)
+
+        if operation_type == 'add':
+            device = self.device_logic.get_device(str(device_id))
+            if device is not None:
+                device_data = (
+                    device.id,
+                    device.device_type,
+                    device.device_long,
+                    device.device_width,
+                    device.regulation_type,
+                    device.notice
+                )
+                table_item_appender(device_table_widget, device_data)
+                device_table_widget.object_id = int(device_id)
+                device_table_widget.selectRow(device_table_widget.rowCount() - 1)
 
     def update_project_txt_browser(self):
         txt_bsr_project = self.parent.findChild(QTextBrowser, 'txt_bsr_project')

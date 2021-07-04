@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QAbstractItemView, QTableWidget, QHBoxLayout, QGroupBox, QAbstractScrollArea
-
 from Gui.Components.table_view_buttons_panel import ButtonPanel
 
 
@@ -11,7 +10,6 @@ class TableView(QTableWidget):
         self.set_table()
 
     def set_table(self):
-
         self.setRowCount(0)
         self.setColumnCount(len(self.columns))
         # Set cells non-editable
@@ -32,12 +30,6 @@ class TableView(QTableWidget):
         self.resizeColumnsToContents()
         # Set last column stretched
         self.horizontalHeader().setStretchLastSection(True)
-
-        self.itemClicked.connect(self.onclick)
-
-    def onclick(self):
-        row = self.currentRow()
-        self.object_id = int(self.item(row, 0).text())
 
 
 class TablePanel:

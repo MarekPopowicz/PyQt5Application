@@ -1,10 +1,13 @@
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel, QPlainTextEdit, QGroupBox, QVBoxLayout, QComboBox, \
-    QDoubleSpinBox, QPushButton
+    QDoubleSpinBox, QPushButton, QTableWidget
 from Data.db_manager import DBManager as DbMan
 from Data.db_query_commands import QUERY_SELECT_ALL_DEVICE_TYPES, QUERY_SELECT_ALL_REGULATIONS
 from Gui.Components.button_panel import ButtonPanel
+from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
+import Gui.Components.constants as Const
 
 
 def create_item_panel(widget_edit_type, label_name):
@@ -21,6 +24,8 @@ class DeviceFormConstructor:
     def __init__(self, form: QDialog, operation: str, parent):
         self.parent_logic = MainWindowLogic(parent)
         self.form = form
+        self.current_task_id = self.parent_logic.parent.findChild(QTableWidget, Const.TASK_TITLE).object_id
+        self.current_device_id = self.parent_logic.parent.findChild(QTableWidget, Const.DEVICE_TITLE).object_id
         with open('Gui/QSS/device_form.qss', 'r') as f:
             self.form.setStyleSheet(f.read())
         self.operation = operation
@@ -53,7 +58,6 @@ class DeviceFormConstructor:
 
         device_type_item = create_item_panel(device_type_combo, "Urządzenie")
         device_details['Urządzenie'] = device_type_combo
-
         long_spin_box = QDoubleSpinBox()
         long_spin_box.setMaximum(100000)
         long_spin_box.setMinimumWidth(100)
@@ -67,6 +71,9 @@ class DeviceFormConstructor:
         device_width_item = create_item_panel(width_spin_box, "Szerokość")
         device_details['Szerokość'] = width_spin_box
         device_width_item.addWidget(QLabel("metrów"))
+
+        device_details['Device_id'] = self.current_device_id
+        device_details['Task_id'] = self.current_task_id
 
         self.form.edit_controls.append(device_details)
 
@@ -130,4 +137,15 @@ class DeviceFormConstructor:
 
     def save_button_clicked(self):
         form_data = self.form.edit_controls
-        self.parent_logic.device_logic.button_clicked(form_data, self.operation)
+        result = False
+        device_id = self.parent_logic.device_logic.button_clicked(form_data, self.operation)
+        if device_id != 0:
+            result = True
+
+        if result:
+            MsgBox('ok_dialog', 'Urządzenie', 'Operacja zakończona sukcesem.', QIcon(Const.APP_ICON))
+            self.form.close()
+            self.parent_logic.update_device_table_view(self.operation, device_id)
+        else:
+            MsgBox('error_dialog', 'Urządzenie', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
+            self.form.close()

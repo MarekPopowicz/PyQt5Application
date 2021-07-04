@@ -169,6 +169,7 @@ class MainWindow(QMainWindow):
 
         # Tasks TableView Widget Creation
         task_panel = tblViewPnl.TablePanel(Const.TASK_TITLE, task_table_columns_names)
+        task_panel.table_view.itemClicked.connect(self.task_table_onclick)
         location_icon = QIcon(Const.LOCATION_ICON)
         task_panel.button_panel.add_button.clicked.connect(
             lambda: self.button_clicked("add", Const.TASK_TITLE, location_icon))
@@ -182,6 +183,7 @@ class MainWindow(QMainWindow):
 
         # Devices TableView Widget Creation
         device_panel = tblViewPnl.TablePanel(Const.DEVICE_TITLE, device_table_columns_names)
+        device_panel.table_view.itemClicked.connect(self.device_table_onclick)
         device_icon = QIcon(Const.DEVICE_ICON)
         device_panel.button_panel.add_button.clicked.connect(
             lambda: self.button_clicked("add", Const.DEVICE_TITLE, device_icon))
@@ -195,6 +197,7 @@ class MainWindow(QMainWindow):
 
         # Documents TableView Widget Creation
         document_panel = tblViewPnl.TablePanel(Const.ATTACHMENT_TITLE, document_table_columns_names)
+        document_panel.table_view.itemClicked.connect(self.attachment_table_onclick)
         document_icon = QIcon(Const.DOCUMENT_ICON)
         document_panel.button_panel.add_button.clicked.connect(
             lambda: self.button_clicked("add", Const.ATTACHMENT_TITLE, document_icon))
@@ -204,6 +207,22 @@ class MainWindow(QMainWindow):
             lambda: self.button_clicked("delete", Const.ATTACHMENT_TITLE, document_icon))
         # Add group_box to higher level layout
         self.right_layout.addWidget(document_panel.groupbox_table_view)
+
+    def task_table_onclick(self):
+        task_table_widget = self.findChild(QTableWidget, Const.TASK_TITLE)
+        row = task_table_widget.currentRow()
+        task_table_widget.object_id = int(task_table_widget.item(row, 0).text())
+        self.logic.update_device_table_view('set', -1)
+
+    def device_table_onclick(self):
+        device_table_widget = self.findChild(QTableWidget, Const.DEVICE_TITLE)
+        row = device_table_widget.currentRow()
+        device_table_widget.object_id = int(device_table_widget.item(row, 0).text())
+
+    def attachment_table_onclick(self):
+        attachment_table_widget = self.findChild(QTableWidget, Const.ATTACHMENT_TITLE)
+        row = attachment_table_widget.currentRow()
+        attachment_table_widget.object_id = int(attachment_table_widget.item(row, 0).text())
 
     def create_buttons_panel(self):
         pdf_icon = QIcon(Const.PRINT_PDF_ICON)
@@ -243,20 +262,36 @@ class MainWindow(QMainWindow):
                           "zapisaniu całości w bazie danych na stacji roboczej użytkownika.")
 
     def button_clicked(self, operation_type, panel_name, icon: QIcon):
-        task_id = 0
+        task_id = self.findChild(QTableWidget, Const.TASK_TITLE).object_id
+        device_id = self.findChild(QTableWidget, Const.DEVICE_TITLE).object_id
+        attachment_id = self.findChild(QTableWidget, Const.ATTACHMENT_TITLE).object_id
+
         # region Add and Edit operation
         if operation_type == 'add' or operation_type == 'edit':
 
             # Jeśli nie ma żadnego projektu nie uruchamiaj okien dodawania i edycji dla pozostałych elementów.
-            if (panel_name == 'Działki' or panel_name == 'Urządzenia' or panel_name == 'Załączniki') \
+            if (panel_name == Const.TASK_TITLE or panel_name == Const.DEVICE_TITLE or panel_name == Const.ATTACHMENT_TITLE) \
                     and (self.current_project_id == -1):
                 MsgBox('error_dialog', panel_name, 'Brak projektu uniemożliwia wykonanie dalszych operacji.\n'
                                                    'Należy najpierw zarejestrować projekt.', QIcon(Const.APP_ICON))
                 return
 
             # Jeśli nie ma żadnego projektu nie uruchamiaj okna edycji dla projektu.
-            if panel_name == 'Projekt' and operation_type == 'edit' and self.current_project_id == -1:
+            if panel_name == Const.PROJECT_TITLE and operation_type == 'edit' and self.current_project_id == -1:
                 MsgBox('error_dialog', panel_name, 'Należy najpierw zarejestrować projekt.', QIcon(Const.APP_ICON))
+                return
+
+            message = 'Brak danych do edycji.'
+            if panel_name == Const.TASK_TITLE and operation_type == 'edit' and task_id <= 0:
+                MsgBox('error_dialog', panel_name, message, QIcon(Const.APP_ICON))
+                return
+
+            if panel_name == Const.DEVICE_TITLE and operation_type == 'edit' and device_id <= 0:
+                MsgBox('error_dialog', panel_name, message, QIcon(Const.APP_ICON))
+                return
+
+            if panel_name == Const.ATTACHMENT_TITLE and operation_type == 'edit' and attachment_id <= 0:
+                MsgBox('error_dialog', panel_name, message, QIcon(Const.APP_ICON))
                 return
 
             WindowManager(panel_name, icon, operation_type, self)
@@ -275,19 +310,21 @@ class MainWindow(QMainWindow):
                               'załącznikach związanych z tym projektem.'
 
             elif panel_name == Const.TASK_TITLE:
-                task_id = self.findChild(QTableWidget, Const.TASK_TITLE).object_id
                 if task_id <= 0:
                     MsgBox('error_dialog', panel_name, 'Brak danych do usunięcia.', QIcon(Const.APP_ICON))
                     return
-                panel_name = "Działka"
                 msg_warning = 'działkę ?\nUsunięcie spowoduje także utratę danych o urządzeniach ' \
                               'związanych z działkami. '
 
             elif panel_name == Const.DEVICE_TITLE:
-                panel_name = "Urządzenie"
+                if device_id <= 0:
+                    MsgBox('error_dialog', panel_name, 'Brak danych do usunięcia.', QIcon(Const.APP_ICON))
+                    return
                 msg_warning = 'urządzenie ?'
             else:
-                panel_name = "Załącznik"
+                if attachment_id <= 0:
+                    MsgBox('error_dialog', panel_name, 'Brak danych do usunięcia.', QIcon(Const.APP_ICON))
+                    return
                 msg_warning = 'załącznik ?'
 
             response = MsgBox("ok_cancel_dlg", f"{panel_name} :: Usunięcie", f"Pytanie:\n"
@@ -296,27 +333,38 @@ class MainWindow(QMainWindow):
 
             if response:
                 result = False
-                if panel_name == 'Projekt':
+                if panel_name == Const.PROJECT_TITLE:
                     result = self.logic.project_logic.delete_project(str(self.current_project_id))
 
-                if panel_name == 'Działka':
-                    task_table_widget = self.findChild(QTableWidget, Const.TASK_TITLE)
-                    new_index = task_table_widget.model().index(task_table_widget.currentRow(), 0)
-                    Id = task_table_widget.model().data(new_index)
-                    result = self.logic.task_logic.delete_task(Id)
+                if panel_name == Const.TASK_TITLE:
+                    # Odczytaj nr id z pierwszej kolumny bierzacego wiersza tabeli
+                    # task_table_widget = self.findChild(QTableWidget, Const.TASK_TITLE)
+                    # new_index = task_table_widget.model().index(task_table_widget.currentRow(), 0)
+                    # Id = task_table_widget.model().data(new_index)
+                    result = self.logic.task_logic.delete_task(str(task_id))
 
-                if panel_name == 'Urządzenie':
-                    pass
+                if panel_name == Const.DEVICE_TITLE:
+                    result = self.logic.device_logic.delete_device(str(device_id))
 
-                if panel_name == 'Załącznik':
+                if panel_name == Const.ATTACHMENT_TITLE:
                     pass
 
                 if result:
                     MsgBox('ok_dialog', panel_name, 'Operacja zakończona sukcesem.', QIcon(Const.APP_ICON))
-                    if panel_name == 'Projekt':
+
+                    if panel_name == Const.PROJECT_TITLE:
                         self.set_data()
-                    if panel_name == 'Działka':
+
+                    if panel_name == Const.TASK_TITLE:
                         self.logic.update_task_table_view('set', -1)
+                        self.logic.update_device_table_view('set', -1)
+
+                    if panel_name == Const.DEVICE_TITLE:
+                        self.logic.update_device_table_view('set', -1)
+
+                    if panel_name == Const.ATTACHMENT_TITLE:
+                        # self.logic.update_attachment_table_view('set', -1)
+                        pass
                 else:
                     MsgBox('error_dialog', panel_name, 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
         # endregion
@@ -335,6 +383,8 @@ class MainWindow(QMainWindow):
         self.logic.update_project_view_list('set')
         self.logic.update_project_txt_browser()
         self.logic.update_task_table_view('set', -1)
+        self.logic.update_device_table_view('set', -1)
+        # self.logic.update_attachment_table_view('set', -1)
 
     def list_item_clicked(self, list_view: QListWidget):
         item = list_view.currentItem().text()
@@ -343,6 +393,7 @@ class MainWindow(QMainWindow):
         self.current_project_id = project_id
         self.logic.update_project_txt_browser()
         self.logic.update_task_table_view('set', -1)
+        self.logic.update_device_table_view('set', -1)
 
 
 def user_window():
