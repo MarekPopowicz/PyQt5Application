@@ -64,6 +64,20 @@ class DeviceFormLogic:
         return result
 
     @staticmethod
+    def delete_device(device_id: str):
+        query = dbQry.QUERY_DELETE_DEVICE
+        qry = query.replace('?', device_id)
+        result = DbMan.delete_item(qry)
+        return result
+
+    @staticmethod
+    def delete_devices(task_id: str):
+        query = dbQry.QUERY_DELETE_DEVICES
+        qry = query.replace('?', task_id)
+        result = DbMan.delete_item(qry)
+        return result
+
+    @staticmethod
     def get_device_list(task_id):
         query = dbQry.QUERY_SELECT_DEVICES
         qry = query.replace('?', task_id)

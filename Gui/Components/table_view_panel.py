@@ -10,6 +10,7 @@ class TableView(QTableWidget):
         self.set_table()
 
     def set_table(self):
+
         self.setRowCount(0)
         self.setColumnCount(len(self.columns))
         # Set cells non-editable

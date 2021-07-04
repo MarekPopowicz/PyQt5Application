@@ -170,6 +170,8 @@ class MainWindow(QMainWindow):
         # Tasks TableView Widget Creation
         task_panel = tblViewPnl.TablePanel(Const.TASK_TITLE, task_table_columns_names)
         task_panel.table_view.itemClicked.connect(self.task_table_onclick)
+        task_panel.table_view.setColumnWidth(1, 140)
+        task_panel.table_view.setColumnWidth(4, 100)
         location_icon = QIcon(Const.LOCATION_ICON)
         task_panel.button_panel.add_button.clicked.connect(
             lambda: self.button_clicked("add", Const.TASK_TITLE, location_icon))
@@ -184,6 +186,10 @@ class MainWindow(QMainWindow):
         # Devices TableView Widget Creation
         device_panel = tblViewPnl.TablePanel(Const.DEVICE_TITLE, device_table_columns_names)
         device_panel.table_view.itemClicked.connect(self.device_table_onclick)
+        device_panel.table_view.setColumnWidth(1, 250)
+        device_panel.table_view.setColumnWidth(2, 50)
+        device_panel.table_view.setColumnWidth(3, 50)
+        device_panel.table_view.setColumnWidth(4, 200)
         device_icon = QIcon(Const.DEVICE_ICON)
         device_panel.button_panel.add_button.clicked.connect(
             lambda: self.button_clicked("add", Const.DEVICE_TITLE, device_icon))
@@ -198,6 +204,7 @@ class MainWindow(QMainWindow):
         # Documents TableView Widget Creation
         document_panel = tblViewPnl.TablePanel(Const.ATTACHMENT_TITLE, document_table_columns_names)
         document_panel.table_view.itemClicked.connect(self.attachment_table_onclick)
+        document_panel.table_view.setColumnWidth(1, 250)
         document_icon = QIcon(Const.DOCUMENT_ICON)
         document_panel.button_panel.add_button.clicked.connect(
             lambda: self.button_clicked("add", Const.ATTACHMENT_TITLE, document_icon))
@@ -270,7 +277,8 @@ class MainWindow(QMainWindow):
         if operation_type == 'add' or operation_type == 'edit':
 
             # Jeśli nie ma żadnego projektu nie uruchamiaj okien dodawania i edycji dla pozostałych elementów.
-            if (panel_name == Const.TASK_TITLE or panel_name == Const.DEVICE_TITLE or panel_name == Const.ATTACHMENT_TITLE) \
+            if (
+                    panel_name == Const.TASK_TITLE or panel_name == Const.DEVICE_TITLE or panel_name == Const.ATTACHMENT_TITLE) \
                     and (self.current_project_id == -1):
                 MsgBox('error_dialog', panel_name, 'Brak projektu uniemożliwia wykonanie dalszych operacji.\n'
                                                    'Należy najpierw zarejestrować projekt.', QIcon(Const.APP_ICON))
@@ -284,6 +292,11 @@ class MainWindow(QMainWindow):
             message = 'Brak danych do edycji.'
             if panel_name == Const.TASK_TITLE and operation_type == 'edit' and task_id <= 0:
                 MsgBox('error_dialog', panel_name, message, QIcon(Const.APP_ICON))
+                return
+
+            if panel_name == Const.DEVICE_TITLE and operation_type == 'add' and task_id <= 0:
+                MsgBox('error_dialog', panel_name, 'Urządzenie jest zlokalizowane na działce.\nNależy najpierw '
+                                                   'zarejestrować działkę.', QIcon(Const.APP_ICON))
                 return
 
             if panel_name == Const.DEVICE_TITLE and operation_type == 'edit' and device_id <= 0:
@@ -338,10 +351,19 @@ class MainWindow(QMainWindow):
 
                 if panel_name == Const.TASK_TITLE:
                     # Odczytaj nr id z pierwszej kolumny bierzacego wiersza tabeli
+
                     # task_table_widget = self.findChild(QTableWidget, Const.TASK_TITLE)
                     # new_index = task_table_widget.model().index(task_table_widget.currentRow(), 0)
                     # Id = task_table_widget.model().data(new_index)
-                    result = self.logic.task_logic.delete_task(str(task_id))
+
+                    # Sprawdź czy są jakieś urządzenia na działce
+                    device_list = self.logic.device_logic.get_device_list(str(task_id))
+                    if len(device_list) > 0:
+                        # Usuń wszystkie urządzenia na działce a potem samą działkę
+                        if self.logic.device_logic.delete_devices(str(task_id)):
+                            result = self.logic.task_logic.delete_task(str(task_id))
+                    else:
+                        result = self.logic.task_logic.delete_task(str(task_id))
 
                 if panel_name == Const.DEVICE_TITLE:
                     result = self.logic.device_logic.delete_device(str(device_id))
