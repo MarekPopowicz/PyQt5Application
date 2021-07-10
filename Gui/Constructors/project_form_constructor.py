@@ -253,6 +253,8 @@ class ProjectFormConstructor:
             self.parent_logic.update_project_view_list(self.operation)
             self.parent_logic.update_project_txt_browser()
             self.parent_logic.update_task_table_view('set', -1)
+            self.parent_logic.update_device_table_view('set', -1)
+            self.parent_logic.update_attachment_table_view('set', -1)
         else:
             MsgBox('error_dialog', 'Projekt', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()
