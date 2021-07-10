@@ -139,6 +139,7 @@ QUERY_DELETE_TASK = 'DELETE FROM tasks WHERE id = ?;'
 QUERY_DELETE_DEVICE = 'DELETE FROM devices WHERE id = ?;'
 QUERY_DELETE_DEVICES = 'DELETE FROM devices WHERE task_id = ?;'
 QUERY_DELETE_ATTACHMENT = 'DELETE FROM attachments WHERE id = ?;'
+QUERY_DELETE_ATTACHMENTS = 'DELETE FROM attachments WHERE project_id = ?;'
 QUERY_DELETE_USER = 'DELETE FROM users WHERE id = ?;'
 QUERY_DROP_USER = 'DELETE FROM users;'
 QUERY_USER_SEQ_RESET = 'DELETE FROM sqlite_sequence WHERE name = "users";'
@@ -162,10 +163,13 @@ QUERY_UPDATE_PROJECT = 'UPDATE projects SET nr_sap = "nr_sap_value", nr_psp = "n
                        '"street_value", up_type = "up_type_value", up_no = "up_no_value", ' \
                        'notice = "notice_value"  WHERE id = id_value;'
 
-QUERY_UPDATE_DEVICE = 'UPDATE devices SET device_type = ?, device_width = ?, device_long = ?, regulation_type = ?, ' \
-                      'notice = ? WHERE id = ?; '
-QUERY_UPDATE_ATTACHMENT = 'UPDATE attachments SET document_name = ?, document_original = ?, ' \
-                          'document_count = ?, notice = ? WHERE id = ?; '
+QUERY_UPDATE_DEVICE = 'UPDATE devices SET device_type = "device_type_value", device_width = "device_width_value", ' \
+                      'device_long = "device_long_value", regulation_type = "regulation_type_value", ' \
+                      'notice = "notice_value" WHERE id = id_value; '
+
+QUERY_UPDATE_ATTACHMENT = 'UPDATE attachments SET document_name = "document_name_value", document_original = ' \
+                          'document_original_value, document_count = document_count_value, notice = "notice_value" ' \
+                          'WHERE id = id_value;'
 
 # Select
 QUERY_SELECT_TASKS = 'SELECT id, register_no, parcel_no, map_sheet_no, area_name, owner_data, notice FROM tasks ' \
@@ -183,8 +187,12 @@ QUERY_SELECT_DEVICE = 'SELECT id, task_id, device_type, device_width, device_lon
 QUERY_SELECT_DEVICES = 'SELECT id, device_type, device_long, device_width, regulation_type, notice FROM ' \
                             'devices WHERE task_id = ?; '
 
-QUERY_SELECT_ATTACHMENT = 'SELECT id, project_id, document_name FROM attachments WHERE id = ?; '
-QUERY_SELECT_ATTACHMENTS = 'SELECT id, project_id, document_name FROM attachments WHERE project_id = ?; '
+QUERY_SELECT_ATTACHMENT = 'SELECT id, project_id, document_name, document_original, document_count, notice FROM ' \
+                          'attachments WHERE id = ?;'
+
+QUERY_SELECT_ATTACHMENTS = 'SELECT id, document_name, document_original, document_count, notice FROM ' \
+                           'attachments WHERE project_id = ?; '
+
 QUERY_SELECT_USER = 'SELECT name, email, password, phone FROM users;'
 
 QUERY_SELECT_ALL_TASK_TYPES = 'SELECT task_name FROM dict_tasks_names ORDER BY task_name ASC;'

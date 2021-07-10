@@ -107,6 +107,56 @@ class MainWindowLogic:
                 device_table_widget.object_id = int(device_id)
                 device_table_widget.selectRow(device_table_widget.rowCount() - 1)
 
+        if operation_type == 'edit':
+            row = device_table_widget.currentRow()
+            device_list = self.device_logic.get_device_list(str(current_task_id))
+            device_table_widget.setRowCount(0)
+            if len(device_list) > 0:
+                device_table_widget.object_id = int(device_list[0][0])
+                for device in device_list:
+                    table_item_appender(device_table_widget, device)
+                device_table_widget.selectRow(row)
+
+    def update_attachment_table_view(self, operation_type, attachment_id):
+        attachment_table_widget = self.parent.findChild(QTableWidget, Const.ATTACHMENT_TITLE)
+
+        if operation_type == 'set':
+            if self.parent.current_project_id != 0:
+                attachment_list = self.attachment_logic.get_attachment_list(str(self.parent.current_project_id))
+                attachment_table_widget.setRowCount(0)
+                if len(attachment_list) > 0:
+                    set_attachment_table_widget(attachment_list, attachment_table_widget)
+                    attachment_table_widget.selectRow(0)
+                else:
+                    attachment_table_widget.object_id = int(attachment_id)
+
+        if operation_type == 'add':
+            attachment = self.attachment_logic.get_attachment(str(attachment_id))
+            if attachment is not None:
+                if attachment.document_original == 1:
+                    attachment.document_original = 'Tak'
+                else:
+                    attachment.document_original = 'Nie'
+
+                attachment_data = (
+                    attachment.id,
+                    attachment.document_name,
+                    attachment.document_original,
+                    attachment.document_count,
+                    attachment.notice
+                )
+                table_item_appender(attachment_table_widget, attachment_data)
+                attachment_table_widget.object_id = int(attachment_id)
+                attachment_table_widget.selectRow(attachment_table_widget.rowCount() - 1)
+
+        if operation_type == 'edit':
+            row = attachment_table_widget.currentRow()
+            attachment_list = self.attachment_logic.get_attachment_list(str(self.parent.current_project_id))
+            attachment_table_widget.setRowCount(0)
+            if len(attachment_list) > 0:
+                set_attachment_table_widget(attachment_list, attachment_table_widget)
+                attachment_table_widget.selectRow(row)
+
     def update_project_txt_browser(self):
         txt_bsr_project = self.parent.findChild(QTextBrowser, 'txt_bsr_project')
         if self.parent.current_project_id == -1:
@@ -179,6 +229,17 @@ def set_project_txt_browser_data(project, txt_bsr: QTextBrowser):
 
     txt_bsr.clear()
     txt_bsr.setText(text)
+
+
+def set_attachment_table_widget(attachment_list, attachment_table_widget):
+    attachment_table_widget.object_id = int(attachment_list[0][0])
+    for attachment in attachment_list:
+        a = list(attachment)
+        if a[2] == 1:
+            a[2] = 'Tak'
+        else:
+            a[2] = 'Nie'
+        table_item_appender(attachment_table_widget, a)
 
 
 def table_item_appender(table, *args):

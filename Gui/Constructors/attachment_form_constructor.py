@@ -1,11 +1,14 @@
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPlainTextEdit, QGroupBox, QHBoxLayout, QComboBox, \
-    QCheckBox, QSpinBox, QPushButton
+    QCheckBox, QSpinBox, QPushButton, QTableWidget
 
 from Data.db_manager import DBManager as DbMan
 from Data.db_query_commands import QUERY_SELECT_ALL_DOCUMENTS
 from Gui.Components.button_panel import ButtonPanel
+from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
+import Gui.Components.constants as Const
 
 
 def create_item_panel(widget_edit_type, label_name):
@@ -22,6 +25,7 @@ class AttachmentFormConstructor:
     def __init__(self, form: QDialog, operation: str, parent):
         self.parent_logic = MainWindowLogic(parent)
         self.form = form
+        self.current_attachment_id = self.parent_logic.parent.findChild(QTableWidget, Const.ATTACHMENT_TITLE).object_id
         with open('Gui/QSS/attachment_form.qss', 'r') as f:
             self.form.setStyleSheet(f.read())
         self.operation = operation
@@ -35,9 +39,15 @@ class AttachmentFormConstructor:
         current_width = self.form.width()
         current_height = self.form.height()
         self.form.setFixedSize(current_width, current_height)
+        if self.operation == 'edit':
+            if int(self.parent_logic.parent.current_project_id) <= 0:
+                return
+            else:
+                self.set_attachment_data()
         self.form.exec_()
 
     def create_details_panel(self, label):
+        attachment_details = {}
         sql_query_document_type_rows = QUERY_SELECT_ALL_DOCUMENTS
         rows = DbMan.show_items(sql_query_document_type_rows)
 
@@ -49,10 +59,19 @@ class AttachmentFormConstructor:
 
         document_type_combo.setCurrentIndex(-1)
         doc_type_item = create_item_panel(document_type_combo, "Załącznik")
-        original = create_item_panel(QCheckBox(), "Oryginał")
+        attachment_details['Załącznik'] = document_type_combo
+
+        original_checkbox = QCheckBox()
+        attachment_details['Oryginał'] = original_checkbox
+        original = create_item_panel(original_checkbox, "Oryginał")
+
         szt = QSpinBox()
+        attachment_details['Sztuk'] = szt
         szt.setMinimum(1)
         quantity = create_item_panel(szt, "Sztuk")
+        attachment_details['project_id'] = self.parent_logic.parent.current_project_id
+        attachment_details['attachment_id'] = self.current_attachment_id
+        self.form.edit_controls.append(attachment_details)
 
         v_layout.addLayout(doc_type_item)
         v_layout.addLayout(original)
@@ -64,9 +83,14 @@ class AttachmentFormConstructor:
         self.form.layout().addWidget(groupbox)
 
     def create_attachment_notice_panel(self, label):
+        attachment_notice = {}
         layout = QVBoxLayout()
         attachment_notice_label = QLabel("Uwagi")
         attachment_notice_edit = QPlainTextEdit()
+
+        attachment_notice['Uwagi'] = attachment_notice_edit
+        self.form.edit_controls.append(attachment_notice)
+
         attachment_notice_edit.setObjectName("Uwagi")
         attachment_notice_edit.lineWrapMode()
         attachment_notice_edit.setMaximumHeight(110)
@@ -87,4 +111,25 @@ class AttachmentFormConstructor:
 
     def save_button_clicked(self):
         form_data = self.form.edit_controls
-        self.parent_logic.attachment_logic.button_clicked(form_data, self.operation)
+        result = False
+        attachment_id = self.parent_logic.attachment_logic.button_clicked(form_data, self.operation)
+        if attachment_id != 0:
+            result = True
+
+        if result:
+            MsgBox('ok_dialog', 'Załącznik', 'Operacja zakończona sukcesem.', QIcon(Const.APP_ICON))
+            self.form.close()
+            self.parent_logic.update_attachment_table_view(self.operation, attachment_id)
+        else:
+            MsgBox('error_dialog', 'Załącznik', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
+            self.form.close()
+
+    def set_attachment_data(self):
+        attachment = self.parent_logic.attachment_logic.get_attachment(str(self.current_attachment_id))
+        if attachment is not None:
+            attachment_form_data = self.form.edit_controls
+            attachment_form_data[0]['Załącznik'].setCurrentText(attachment.document_name)
+            if attachment.document_original == 1:
+                attachment_form_data[0]['Oryginał'].setChecked(True)
+            attachment_form_data[0]['Sztuk'].setValue(attachment.document_count)
+            attachment_form_data[1]['Uwagi'].setPlainText(attachment.notice)

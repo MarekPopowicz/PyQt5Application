@@ -276,15 +276,13 @@ class MainWindow(QMainWindow):
         # region Add and Edit operation
         if operation_type == 'add' or operation_type == 'edit':
 
-            # Jeśli nie ma żadnego projektu nie uruchamiaj okien dodawania i edycji dla pozostałych elementów.
-            if (
-                    panel_name == Const.TASK_TITLE or panel_name == Const.DEVICE_TITLE or panel_name == Const.ATTACHMENT_TITLE) \
+            # Do not take any action if there is no project.
+            if (panel_name == Const.TASK_TITLE or panel_name == Const.DEVICE_TITLE or panel_name == Const.ATTACHMENT_TITLE) \
                     and (self.current_project_id == -1):
                 MsgBox('error_dialog', panel_name, 'Brak projektu uniemożliwia wykonanie dalszych operacji.\n'
                                                    'Należy najpierw zarejestrować projekt.', QIcon(Const.APP_ICON))
                 return
 
-            # Jeśli nie ma żadnego projektu nie uruchamiaj okna edycji dla projektu.
             if panel_name == Const.PROJECT_TITLE and operation_type == 'edit' and self.current_project_id == -1:
                 MsgBox('error_dialog', panel_name, 'Należy najpierw zarejestrować projekt.', QIcon(Const.APP_ICON))
                 return
@@ -312,7 +310,7 @@ class MainWindow(QMainWindow):
 
         # region Delete operation
         if operation_type == 'delete':
-            # Nie podejmuj żadnych działań jesli wskaźnik bierzącego projektu jest poza zakresem (brak projektów)
+            # Do not take any actions if there is no project
             if self.current_project_id == -1:
                 MsgBox('error_dialog', panel_name, 'Brak projektu uniemożliwia wykonanie tej operacji.\n'
                                                    'Należy najpierw zarejestrować projekt.', QIcon(Const.APP_ICON))
@@ -347,29 +345,31 @@ class MainWindow(QMainWindow):
             if response:
                 result = False
                 if panel_name == Const.PROJECT_TITLE:
+                    # Check if any tasks are out there
+                    tasks_list = self.logic.task_logic.get_tasks_list(str(self.current_project_id))
+                    # if so, delete every single task with its devices
+                    if len(tasks_list) > 0:
+                        for task in tasks_list:
+                            self.delete_tasks(task[0])
+                    # Delete all attachments
+                    self.logic.attachment_logic.delete_attachments(str(self.current_project_id))
+                    # Delete project
                     result = self.logic.project_logic.delete_project(str(self.current_project_id))
 
                 if panel_name == Const.TASK_TITLE:
-                    # Odczytaj nr id z pierwszej kolumny bierzacego wiersza tabeli
+                    # Read id's no from first column in current table row
 
                     # task_table_widget = self.findChild(QTableWidget, Const.TASK_TITLE)
                     # new_index = task_table_widget.model().index(task_table_widget.currentRow(), 0)
                     # Id = task_table_widget.model().data(new_index)
 
-                    # Sprawdź czy są jakieś urządzenia na działce
-                    device_list = self.logic.device_logic.get_device_list(str(task_id))
-                    if len(device_list) > 0:
-                        # Usuń wszystkie urządzenia na działce a potem samą działkę
-                        if self.logic.device_logic.delete_devices(str(task_id)):
-                            result = self.logic.task_logic.delete_task(str(task_id))
-                    else:
-                        result = self.logic.task_logic.delete_task(str(task_id))
+                    result = self.delete_tasks(task_id)
 
                 if panel_name == Const.DEVICE_TITLE:
                     result = self.logic.device_logic.delete_device(str(device_id))
 
                 if panel_name == Const.ATTACHMENT_TITLE:
-                    pass
+                    result = self.logic.attachment_logic.delete_attachment(str(attachment_id))
 
                 if result:
                     MsgBox('ok_dialog', panel_name, 'Operacja zakończona sukcesem.', QIcon(Const.APP_ICON))
@@ -385,11 +385,21 @@ class MainWindow(QMainWindow):
                         self.logic.update_device_table_view('set', -1)
 
                     if panel_name == Const.ATTACHMENT_TITLE:
-                        # self.logic.update_attachment_table_view('set', -1)
-                        pass
+                        self.logic.update_attachment_table_view('set', -1)
                 else:
                     MsgBox('error_dialog', panel_name, 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
         # endregion
+
+    def delete_tasks(self, task_id):
+        result = False
+        device_list = self.logic.device_logic.get_device_list(str(task_id))
+        if len(device_list) > 0:
+            # Remove all devices na and then current task
+            if self.logic.device_logic.delete_devices(str(task_id)):
+                result = self.logic.task_logic.delete_task(str(task_id))
+        else:
+            result = self.logic.task_logic.delete_task(str(task_id))
+        return result
 
     def set_data(self):
         project_list = self.logic.project_logic.get_projects_list()
@@ -400,13 +410,12 @@ class MainWindow(QMainWindow):
 
         else:
             self.current_project_id = -1
-            return
 
         self.logic.update_project_view_list('set')
         self.logic.update_project_txt_browser()
         self.logic.update_task_table_view('set', -1)
         self.logic.update_device_table_view('set', -1)
-        # self.logic.update_attachment_table_view('set', -1)
+        self.logic.update_attachment_table_view('set', -1)
 
     def list_item_clicked(self, list_view: QListWidget):
         item = list_view.currentItem().text()
@@ -416,6 +425,7 @@ class MainWindow(QMainWindow):
         self.logic.update_project_txt_browser()
         self.logic.update_task_table_view('set', -1)
         self.logic.update_device_table_view('set', -1)
+        self.logic.update_attachment_table_view('set', -1)
 
 
 def user_window():

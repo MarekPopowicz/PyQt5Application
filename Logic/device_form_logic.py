@@ -13,7 +13,7 @@ class DeviceFormLogic:
             if operation_type == 'add':
                 return self.add_device()
             else:
-                pass
+                return self.update_device()
 
     def set_project(self, data):
         self.device.id = data[0]['Device_id']
@@ -39,6 +39,17 @@ class DeviceFormLogic:
             return result
         else:
             return 0
+
+    def update_device(self):
+        query = dbQry.QUERY_UPDATE_DEVICE
+        qry = query.replace('id_value', str(self.device.id))
+        qry = qry.replace('device_type_value', self.device.device_type)
+        qry = qry.replace('device_width_value', self.device.device_width)
+        qry = qry.replace('device_long_value', self.device.device_long)
+        qry = qry.replace('regulation_type_value', self.device.regulation_type)
+        qry = qry.replace('notice_value', self.device.notice)
+        result = DbMan.update_item(qry)
+        return result
 
     def get_device(self, device_id):
         query = dbQry.QUERY_SELECT_DEVICE

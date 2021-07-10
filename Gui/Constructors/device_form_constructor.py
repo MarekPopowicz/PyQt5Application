@@ -40,6 +40,11 @@ class DeviceFormConstructor:
         current_width = self.form.width()
         current_height = self.form.height()
         self.form.setFixedSize(current_width, current_height)
+        if self.operation == 'edit':
+            if self.current_task_id <= 0:
+                return
+            else:
+                self.set_device_data()
         self.form.exec_()
 
     def create_details_panel(self, label):
@@ -149,3 +154,13 @@ class DeviceFormConstructor:
         else:
             MsgBox('error_dialog', 'Urządzenie', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()
+
+    def set_device_data(self):
+        device = self.parent_logic.device_logic.get_device(str(self.current_device_id))
+        if device is not None:
+            device_form_data = self.form.edit_controls
+            device_form_data[0]['Urządzenie'].setCurrentText(device.device_type)
+            device_form_data[0]['Długość'].setValue(float(device.device_long.replace(',', '.')))
+            device_form_data[0]['Szerokość'].setValue(float(device.device_width.replace(',', '.')))
+            device_form_data[1]['Tytuł'].setCurrentText(device.regulation_type)
+            device_form_data[2]['Uwagi'].setPlainText(device.notice)
