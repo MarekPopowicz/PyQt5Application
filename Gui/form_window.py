@@ -29,7 +29,10 @@ class WindowManager:
 
     def set_window_title(self):
         if self.operation == 'add':
-            return f'{self.type} :: Nowy'
+            if self.parent.creator_init_flag:
+                return f"{self.type} :: Kreator nowego projektu"
+            else:
+                return f"{self.type} :: Nowy"
         else:
             return f'{self.type} :: Edycja'
 

@@ -163,7 +163,10 @@ class MainWindowLogic:
             txt_bsr_project.clear()
         else:
             project = self.project_logic.get_project(str(self.parent.current_project_id))
-            set_project_txt_browser_data(project, txt_bsr_project)
+            if project is not None:
+                set_project_txt_browser_data(project, txt_bsr_project)
+            else:
+                return
 
 
 def set_project_txt_browser_data(project, txt_bsr: QTextBrowser):
@@ -204,6 +207,9 @@ def set_project_txt_browser_data(project, txt_bsr: QTextBrowser):
     up_no_label = f'<font style = "color:{LABEL_COLOR}; font-weight: {FONT_WEIGHT_LABEL}">Nr: </font>'
     up_no_value = f'<font style = "color:{VALUE_COLOR}; font-weight: {FONT_WEIGHT_VALUE}">{project.up_no}</font>'
 
+    up_date_label = f'<font style = "color:{LABEL_COLOR}; font-weight: {FONT_WEIGHT_LABEL}"> z dn.: </font>'
+    up_date_value = f'<font style = "color:{VALUE_COLOR}; font-weight: {FONT_WEIGHT_VALUE}">{project.up_date}</font>'
+
     place_label = f'<font style = "color:{LABEL_COLOR}; font-weight: {FONT_WEIGHT_LABEL}">Lokalizacja: </font>'
     place_value = f'<font style = "color:{VALUE_COLOR}; font-weight: {FONT_WEIGHT_VALUE}">{project.place}</font>'
 
@@ -213,13 +219,15 @@ def set_project_txt_browser_data(project, txt_bsr: QTextBrowser):
     notice_label = f'<font style = "color:{LABEL_COLOR}; font-weight: {FONT_WEIGHT_LABEL}">Informacje dodatkowe: </font>'
     notice_value = f'<font style = "color:{VALUE_COLOR}; font-weight: {FONT_WEIGHT_VALUE}">{project.notice}</font>'
 
-    line_1 = f'<div>{nr_sap_label} {nr_sap} {nr_label} {nr_value} {wnioskodawca_label} {wnioskodawca_value} {rejestracja_label} {rejestracja_value}</div> '
+    line_1 = f'<div>{nr_sap_label} {nr_sap} {nr_label} {nr_value} {wnioskodawca_label} {wnioskodawca_value} ' \
+             f'{rejestracja_label} {rejestracja_value}</div> '
 
     line_2 = f'<div>{regulacja_label} {regulacja_value} {roboczogodziny_label} {roboczogodziny_value}</div>'
 
     line_3 = f'<div>{task_type_label} {task_type_value} {main_device_label} {main_device_value}</div>'
 
-    line_4 = f'<div>{up_type_label} {up_type_value} {up_no_label} {up_no_value} {priorytet_label} {priorytet_value}</div>'
+    line_4 = f'<div>{up_type_label} {up_type_value} {up_no_label} {up_no_value} {up_date_label} {up_date_value} ' \
+             f'{priorytet_label} {priorytet_value}</div>'
 
     line_5 = f'<div>{place_label} {place_value} {street_label} {street_value}</div>'
 

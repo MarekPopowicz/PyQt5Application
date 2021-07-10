@@ -73,6 +73,7 @@ class ProjectFormLogic:
         qry = qry.replace('street_value', self.project.street)
         qry = qry.replace('up_type_value', self.project.up_type)
         qry = qry.replace('up_no_value', self.project.up_no)
+        qry = qry.replace('up_date_value', self.project.up_date)
         qry = qry.replace('notice_value', self.project.notice)
         result = DbMan.update_item(qry)
         return result
@@ -90,6 +91,7 @@ class ProjectFormLogic:
                                              self.project.engineer_name,
                                              self.project.up_type,
                                              self.project.up_no,
+                                             self.project.up_date,
                                              self.project.notice,
                                              ))
         if result > 0:
@@ -133,7 +135,8 @@ class ProjectFormLogic:
             self.project.registration_date = project_data[9]
             self.project.up_type = project_data[10]
             self.project.up_no = project_data[11]
-            self.project.notice = project_data[12]
+            self.project.up_date = project_data[12]
+            self.project.notice = project_data[13]
 
             return self.project
         else:

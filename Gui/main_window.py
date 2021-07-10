@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
         self.create_buttons_panel()
         self.main_layout.addLayout(self.right_layout)
         self.set_data()
+        self.creator_init_flag = False
         if not DBManager.if_user_exists():
             MsgBox('ok_dialog', 'Użytkownik',
                    'Wykryto brak użytkownika\nDalsze korzystanie z aplikacji wymaga rejestracji użytkownika.',
@@ -233,6 +234,7 @@ class MainWindow(QMainWindow):
 
     def create_buttons_panel(self):
         pdf_icon = QIcon(Const.PRINT_PDF_ICON)
+        new_icon = QIcon(Const.NEW_ICON)
 
         button_print = QPushButton("Drukuj")
         button_print.setToolTip("Drukuj wybrany wniosek do pliku PDF")
@@ -240,8 +242,15 @@ class MainWindow(QMainWindow):
         button_print.setIcon(pdf_icon)
         button_print.clicked.connect(lambda: print_button_clicked())
 
+        button_new = QPushButton("Nowy")
+        button_new.setToolTip("Kreator nowego wniosku")
+        button_new.setMinimumSize(Const.BUTTON_WIDTH, Const.BUTTON_HEIGHT)
+        button_new.setIcon(new_icon)
+        button_new.clicked.connect(self.new_button_clicked)
+
         buttons_layout = QHBoxLayout()
         buttons_layout.setAlignment(Qt.AlignRight)
+        buttons_layout.addWidget(button_new)
         buttons_layout.addWidget(button_print)
 
         groupbox_buttons = QGroupBox()
@@ -268,6 +277,10 @@ class MainWindow(QMainWindow):
                           "Zapewnia kontrolę kompletności przekazywanych informacji, oraz "
                           "zapisaniu całości w bazie danych na stacji roboczej użytkownika.")
 
+    def new_button_clicked(self):
+        self.creator_init_flag = True
+        WindowManager(Const.PROJECT_TITLE, QIcon(Const.PROJECT_ICON), "add", self)
+
     def button_clicked(self, operation_type, panel_name, icon: QIcon):
         task_id = self.findChild(QTableWidget, Const.TASK_TITLE).object_id
         device_id = self.findChild(QTableWidget, Const.DEVICE_TITLE).object_id
@@ -277,7 +290,8 @@ class MainWindow(QMainWindow):
         if operation_type == 'add' or operation_type == 'edit':
 
             # Do not take any action if there is no project.
-            if (panel_name == Const.TASK_TITLE or panel_name == Const.DEVICE_TITLE or panel_name == Const.ATTACHMENT_TITLE) \
+            if (
+                    panel_name == Const.TASK_TITLE or panel_name == Const.DEVICE_TITLE or panel_name == Const.ATTACHMENT_TITLE) \
                     and (self.current_project_id == -1):
                 MsgBox('error_dialog', panel_name, 'Brak projektu uniemożliwia wykonanie dalszych operacji.\n'
                                                    'Należy najpierw zarejestrować projekt.', QIcon(Const.APP_ICON))
@@ -440,5 +454,5 @@ def data_base_manager_window():
     pass
 
 
-def print_button_clicked():
+def print_button_clicked(self):
     pass

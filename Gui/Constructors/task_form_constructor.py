@@ -116,9 +116,11 @@ class TaskFormConstructor:
             MsgBox('ok_dialog', 'Działka', 'Operacja zakończona sukcesem.', QIcon(Const.APP_ICON))
             self.form.close()
             self.parent_logic.update_task_table_view(self.operation, task_id)
+            self.parent_logic.update_device_table_view('set', -1)
         else:
             MsgBox('error_dialog', 'Działka', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()
+            self.parent_logic.parent.creator_init_flag = False
 
     def set_task_data(self):
         task = self.parent_logic.task_logic.get_task(str(self.current_task_id))

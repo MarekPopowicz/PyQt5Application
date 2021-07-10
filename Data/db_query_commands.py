@@ -19,9 +19,10 @@ SQL_CREATE_PROJECTS_TABLE = """ CREATE TABLE IF NOT EXISTS projects (
                                         place NVARCHAR(255) NOT NULL,
                                         street NVARCHAR(255),
                                         engineer_name NVARCHAR(80) NOT NULL,
-                                        registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                        registration_date TIMESTAMP DEFAULT (datetime('now','localtime')),
                                         up_type NVARCHAR(100) NOT NULL,
                                         up_no NVARCHAR(100) NOT NULL,
+                                        up_date NVARCHAR(10),
                                         notice TEXT
                                     ); """
 # Tasks
@@ -103,8 +104,9 @@ QUERY_INSERT_PROJECT = 'INSERT INTO projects(' \
                        'engineer_name, ' \
                        'up_type, ' \
                        'up_no, ' \
+                       'up_date, ' \
                        'notice) ' \
-                       'VALUES(?,?,?,?,?,?,?,?,?,?,?,?);'
+                       'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);'
 
 QUERY_INSERT_TASK = 'INSERT INTO tasks(project_id, register_no, parcel_no, map_sheet_no, area_name, owner_data, ' \
                     'notice) VALUES(?,?,?,?,?,?,?);'
@@ -160,7 +162,7 @@ QUERY_UPDATE_TASK = 'UPDATE tasks SET register_no = "register_no_value", parcel_
 QUERY_UPDATE_PROJECT = 'UPDATE projects SET nr_sap = "nr_sap_value", nr_psp = "nr_psp_value", nr_sap_work_hours = ' \
                        '"nr_sap_work_hours_value", project_priority = project_priority_value, ' \
                        'task_type = "task_type_value", task_name = "task_name_value", place = "place_value", street = ' \
-                       '"street_value", up_type = "up_type_value", up_no = "up_no_value", ' \
+                       '"street_value", up_type = "up_type_value", up_no = "up_no_value", up_date = "up_date_value", ' \
                        'notice = "notice_value"  WHERE id = id_value;'
 
 QUERY_UPDATE_DEVICE = 'UPDATE devices SET device_type = "device_type_value", device_width = "device_width_value", ' \
@@ -178,7 +180,8 @@ QUERY_SELECT_TASK = 'SELECT id, register_no, parcel_no, map_sheet_no, area_name,
                     'WHERE id = ?;'
 
 QUERY_SELECT_PROJECT = 'SELECT nr_sap, nr_psp, nr_sap_work_hours, project_priority, task_name, task_type, place, ' \
-                       'street, engineer_name, registration_date, up_type, up_no, notice FROM projects WHERE id = ?;'
+                       'street, engineer_name, registration_date, up_type, up_no, up_date, notice ' \
+                       'FROM projects WHERE id = ?;'
 QUERY_SELECT_ALL_PROJECTS = 'SELECT id, nr_sap, nr_psp, nr_sap_work_hours, project_priority, task_name, task_type, ' \
                             'place, street, engineer_name, registration_date, up_type, up_no, notice FROM projects; '
 QUERY_SELECT_DEVICE = 'SELECT id, task_id, device_type, device_width, device_long, regulation_type, notice FROM ' \
