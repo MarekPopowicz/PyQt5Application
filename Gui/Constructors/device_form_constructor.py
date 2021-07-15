@@ -8,11 +8,13 @@ from Gui.Components.button_panel import ButtonPanel
 from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
+from Logic.tools import test_data
 
 
 def create_item_panel(widget_edit_type, label_name):
     layout = QHBoxLayout()
     label = QLabel(label_name)
+    label.setStyleSheet("color: red")
     layout.addWidget(label)
 
     layout.addWidget(widget_edit_type)
@@ -76,7 +78,6 @@ class DeviceFormConstructor:
         device_width_item = create_item_panel(width_spin_box, "Szerokość")
         device_details['Szerokość'] = width_spin_box
         device_width_item.addWidget(QLabel("metrów"))
-
         device_details['Device_id'] = self.current_device_id
         device_details['Task_id'] = self.current_task_id
 
@@ -141,6 +142,8 @@ class DeviceFormConstructor:
         save_button.clicked.connect(self.save_button_clicked)
 
     def save_button_clicked(self):
+        if not self.validate():
+            return
         form_data = self.form.edit_controls
         result = False
         device_id = self.parent_logic.device_logic.button_clicked(form_data, self.operation)
@@ -164,3 +167,36 @@ class DeviceFormConstructor:
             device_form_data[0]['Szerokość'].setValue(float(device.device_width.replace(',', '.')))
             device_form_data[1]['Tytuł'].setCurrentText(device.regulation_type)
             device_form_data[2]['Uwagi'].setPlainText(device.notice)
+
+    def validate(self):
+        results = []
+        result = False
+        form_data = self.form.edit_controls
+        urzadzenie = form_data[0]['Urządzenie'].currentText()
+        dlugosc = form_data[0]['Długość'].value()
+        szerokosc = form_data[0]['Szerokość'].value()
+        tytul = form_data[1]['Tytuł'].currentText()
+
+        results.append(test_data(r".+", urzadzenie))
+        if dlugosc > 0:
+            results.append(True)
+        else:
+            results.append(False)
+
+        if szerokosc > 0:
+            results.append(True)
+        else:
+            results.append(False)
+
+        results.append(test_data(r".+", tytul))
+
+        for item in results:
+            if not item:
+                MsgBox('error_dialog', 'Urządzenie',
+                       'Co najmniej jedno z pól formularza nie zawiera wymaganych informacji '
+                       'lub wprowadzone dane są niewłaściwego formatu.', QIcon(Const.APP_ICON))
+                result = False
+                break
+            else:
+                result = True
+        return result

@@ -39,7 +39,6 @@ class MainWindow(QMainWindow):
         self.create_buttons_panel()
         self.main_layout.addLayout(self.right_layout)
         self.set_data()
-        self.creator_init_flag = False
         if not DBManager.if_user_exists():
             MsgBox('ok_dialog', 'Użytkownik',
                    'Wykryto brak użytkownika\nDalsze korzystanie z aplikacji wymaga rejestracji użytkownika.',
@@ -234,7 +233,7 @@ class MainWindow(QMainWindow):
 
     def create_buttons_panel(self):
         pdf_icon = QIcon(Const.PRINT_PDF_ICON)
-        new_icon = QIcon(Const.NEW_ICON)
+        json_icon = QIcon(Const.JSON_ICON)
 
         button_print = QPushButton("Drukuj")
         button_print.setToolTip("Drukuj wybrany wniosek do pliku PDF")
@@ -242,11 +241,11 @@ class MainWindow(QMainWindow):
         button_print.setIcon(pdf_icon)
         button_print.clicked.connect(lambda: print_button_clicked())
 
-        button_new = QPushButton("Nowy")
-        button_new.setToolTip("Kreator nowego wniosku")
+        button_new = QPushButton("Export")
+        button_new.setToolTip("Zapisz dane z wniosku do pliku")
         button_new.setMinimumSize(Const.BUTTON_WIDTH, Const.BUTTON_HEIGHT)
-        button_new.setIcon(new_icon)
-        button_new.clicked.connect(self.new_button_clicked)
+        button_new.setIcon(json_icon)
+        button_new.clicked.connect(self.json_button_clicked)
 
         buttons_layout = QHBoxLayout()
         buttons_layout.setAlignment(Qt.AlignRight)
@@ -277,9 +276,8 @@ class MainWindow(QMainWindow):
                           "Zapewnia kontrolę kompletności przekazywanych informacji, oraz "
                           "zapisaniu całości w bazie danych na stacji roboczej użytkownika.")
 
-    def new_button_clicked(self):
-        self.creator_init_flag = True
-        WindowManager(Const.PROJECT_TITLE, QIcon(Const.PROJECT_ICON), "add", self)
+    def json_button_clicked(self):
+        pass
 
     def button_clicked(self, operation_type, panel_name, icon: QIcon):
         task_id = self.findChild(QTableWidget, Const.TASK_TITLE).object_id

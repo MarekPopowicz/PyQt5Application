@@ -23,7 +23,7 @@ PROJECT_ICON = 'Images/project.png'
 PRINT_PDF_ICON = 'Images/pdf.png'
 SAVE_ICON = 'Images/save.png'
 CANCEL_ICON = 'Images/cancel.png'
-NEW_ICON = 'Images/star.png'
+JSON_ICON = 'Images/json.png'
 
 TASKS = 'Zadania'
 STREETS = 'Ulice'

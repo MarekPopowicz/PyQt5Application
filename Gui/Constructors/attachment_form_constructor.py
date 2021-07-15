@@ -9,11 +9,13 @@ from Gui.Components.button_panel import ButtonPanel
 from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
+from Logic.tools import test_data
 
 
 def create_item_panel(widget_edit_type, label_name):
     layout = QHBoxLayout()
     label = QLabel(label_name)
+    label.setStyleSheet("color: red")
     layout.addWidget(label)
     widget_edit_type.setObjectName(label_name)
     layout.addWidget(widget_edit_type)
@@ -110,6 +112,8 @@ class AttachmentFormConstructor:
         save_button.clicked.connect(self.save_button_clicked)
 
     def save_button_clicked(self):
+        if not self.validate():
+            return
         form_data = self.form.edit_controls
         result = False
         attachment_id = self.parent_logic.attachment_logic.button_clicked(form_data, self.operation)
@@ -133,3 +137,22 @@ class AttachmentFormConstructor:
                 attachment_form_data[0]['Oryginał'].setChecked(True)
             attachment_form_data[0]['Sztuk'].setValue(attachment.document_count)
             attachment_form_data[1]['Uwagi'].setPlainText(attachment.notice)
+
+    def validate(self):
+        results = []
+        result = False
+        form_data = self.form.edit_controls
+        zalacznik = form_data[0]['Załącznik'].currentText()
+
+        results.append(test_data(r".+", zalacznik))
+
+        for item in results:
+            if not item:
+                MsgBox('error_dialog', 'Załącznik',
+                       'Co najmniej jedno z pól formularza nie zawiera wymaganych informacji '
+                       'lub wprowadzone dane są niewłaściwego formatu.', QIcon(Const.APP_ICON))
+                result = False
+                break
+            else:
+                result = True
+        return result

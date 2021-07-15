@@ -12,11 +12,14 @@ from Gui.Components.msg_dialogs import MsgBox
 from Gui.Components.searchable_combo import ExtendedComboBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
+from Logic.tools import test_data
+import Gui.Constructors.task_form_constructor as TaskFmConst
 
 
 class ProjectFormConstructor:
     def __init__(self, form: QDialog, operation: str, parent):
-        self.parent_logic = MainWindowLogic(parent)
+        self.parent = parent
+        self.parent_logic = MainWindowLogic(self.parent)
         self.form = form
         with open('Gui/QSS/project_form.qss', 'r') as f:
             self.form.setStyleSheet(f.read())
@@ -96,17 +99,20 @@ class ProjectFormConstructor:
         layout = QHBoxLayout()
 
         proj_no_label = QLabel("Nr projektu")
+        proj_no_label.setStyleSheet("color: red")
         proj_no_edit = QLineEdit()
         proj_no_edit.setPlaceholderText('np. I-WR-AO-2001234')
         proj_no_edit.setText('I-WR-')
         sap_info_panel_widgets['Nr_projektu'] = proj_no_edit
 
         proj_psp_label = QLabel("Regulacja")
+        proj_psp_label.setStyleSheet("color: red")
         proj_psp_edit = QLineEdit()
         proj_psp_edit.setPlaceholderText('np. SPAK001')
         sap_info_panel_widgets['Regulacja'] = proj_psp_edit
 
         proj_rbg_label = QLabel("Roboczogodziny")
+        proj_rbg_label.setStyleSheet("color: red")
         proj_rbg_edit = QLineEdit()
         proj_rbg_edit.setPlaceholderText('np. PKNN001')
         sap_info_panel_widgets['Roboczogodziny'] = proj_rbg_edit
@@ -139,6 +145,7 @@ class ProjectFormConstructor:
         proj_title_combo.setCurrentIndex(0)
 
         doc_no_label = QLabel("Nr")
+        doc_no_label.setStyleSheet("color: red")
         doc_no_edit = QLineEdit()
         title_panel_widgets['Nr'] = doc_no_edit
 
@@ -199,6 +206,7 @@ class ProjectFormConstructor:
         layout.setAlignment(Qt.AlignLeft)
 
         proj_location_label = QLabel("Miejscowość")
+        proj_location_label.setStyleSheet("color: red")
         proj_location_combo = ExtendedComboBox()
         location_panel_widgets["Miejscowość"] = proj_location_combo
         for row in places_rows:
@@ -233,6 +241,9 @@ class ProjectFormConstructor:
         save_button.clicked.connect(self.save_button_clicked)
 
     def save_button_clicked(self):
+        if not self.validate():
+            return
+
         project_id = 0
         form_data = self.form.edit_controls
         result = False
@@ -255,6 +266,8 @@ class ProjectFormConstructor:
             self.parent_logic.update_task_table_view('set', -1)
             self.parent_logic.update_device_table_view('set', -1)
             self.parent_logic.update_attachment_table_view('set', -1)
+
+            self.next_step()
         else:
             MsgBox('error_dialog', 'Projekt', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()
@@ -289,3 +302,34 @@ class ProjectFormConstructor:
 
         notice = self.form.edit_controls[5]
         notice['Uwagi'].setPlainText(project.notice)
+
+    def validate(self):
+        results = []
+        result = False
+        form_data = self.form.edit_controls
+        nr_projektu = form_data[0]['Nr_projektu'].text()
+        regulacja = form_data[0]['Regulacja'].text()
+        roboczogodziny = form_data[0]['Roboczogodziny'].text()
+        nr = form_data[1]['Nr'].text()
+        miejscowosc = form_data[4]['Miejscowość'].currentText()
+
+        results.append(test_data(r"I-WR-(AO|AI|BI)-\d{7}", nr_projektu))
+        results.append(test_data(r"[A-Z]{4}\d{3}", regulacja))
+        results.append(test_data(r"[A-Z]{4}\d{3}", roboczogodziny))
+        results.append(test_data(r".+", nr))
+        results.append(test_data(r".+", miejscowosc))
+
+        for item in results:
+            if not item:
+                MsgBox('error_dialog', 'Projekt',
+                       'Co najmniej jedno z pól formularza nie zawiera wymaganych informacji '
+                       'lub wprowadzone dane są niewłaściwego formatu.', QIcon(Const.APP_ICON))
+                result = False
+                break
+            else:
+                result = True
+        return result
+
+    def next_step(self):
+        self.parent_logic.parent.button_clicked('add', Const.TASK_TITLE, QIcon(Const.TASK_ICON))
+

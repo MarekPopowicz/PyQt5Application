@@ -5,6 +5,7 @@ from Gui.Components.button_panel import ButtonPanel
 from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
+from Logic.tools import test_data
 
 items_edit = {}
 
@@ -12,7 +13,10 @@ items_edit = {}
 def create_item_edit_panel(item_label, max_width: int):
     layout = QHBoxLayout()
     new_label = QLabel(item_label)
+    new_label.setStyleSheet("color: red")
     new_edit = QLineEdit()
+    if item_label == 'KW':
+        new_edit.setPlaceholderText('np. WR1K/12345678/9')
     new_edit.setMaximumWidth(max_width)
     items_edit[item_label] = new_edit
     layout.addWidget(new_label)
@@ -54,9 +58,11 @@ class TaskFormConstructor:
         parcel_panel = create_item_edit_panel('Dz.', 50)
         map_sheet_panel = create_item_edit_panel('AM', 50)
         area_panel = create_item_edit_panel('Obręb', 400)
+
         owner_label = QLabel('Dane kontaktowe właściciela')
-        owner_label.setStyleSheet('QLabel {margin-top: 10px}')
+        owner_label.setStyleSheet('QLabel {margin-top: 10px; color: red}')
         owner_edit = QPlainTextEdit()
+        owner_edit.setPlaceholderText('Nazwa/Imię i nazwisko, adres, telefon, e-mail')
         owner_data['Właściciel'] = owner_edit
         owner_data['Project_id'] = self.parent_logic.parent.current_project_id
         owner_edit.lineWrapMode()
@@ -84,7 +90,6 @@ class TaskFormConstructor:
         task_notice_label = QLabel("Uwagi")
         task_notice_edit = QPlainTextEdit()
         notice["Uwagi"] = task_notice_edit
-
         self.form.edit_controls.append(notice)
 
         task_notice_edit.lineWrapMode()
@@ -105,6 +110,9 @@ class TaskFormConstructor:
         save_button.clicked.connect(self.save_button_clicked)
 
     def save_button_clicked(self):
+        if not self.validate():
+            return
+
         form_data = self.form.edit_controls
         form_data[0]['task_id'] = self.current_task_id
         result = False
@@ -132,3 +140,30 @@ class TaskFormConstructor:
             task_form_data[0]['Obręb'].setText(task.area_name)
             task_form_data[1]['Właściciel'].setPlainText(task.owner_data)
             task_form_data[2]['Uwagi'].setPlainText(task.notice)
+
+    def validate(self):
+        results = []
+        result = False
+        form_data = self.form.edit_controls
+        kw = form_data[0]['KW'].text()
+        dz = form_data[0]['Dz.'].text()
+        am = form_data[0]['AM'].text()
+        obreb = form_data[0]['Obręb'].text()
+        wlasciciel = form_data[1]['Właściciel'].toPlainText()
+
+        results.append(test_data(r"[A-Z]{2}\d[A-Z]{1}/\d{8}/\d{1}", kw))
+        results.append(test_data(r"\d+/\d+|\d+", dz))
+        results.append(test_data(r"\d+", am))
+        results.append(test_data(r".+", obreb))
+        results.append(test_data(r".+", wlasciciel))
+
+        for item in results:
+            if not item:
+                MsgBox('error_dialog', 'Działka',
+                       'Co najmniej jedno z pól formularza nie zawiera wymaganych informacji '
+                       'lub wprowadzone dane są niewłaściwego formatu.', QIcon(Const.APP_ICON))
+                result = False
+                break
+            else:
+                result = True
+        return result

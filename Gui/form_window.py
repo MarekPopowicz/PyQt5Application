@@ -29,10 +29,7 @@ class WindowManager:
 
     def set_window_title(self):
         if self.operation == 'add':
-            if self.parent.creator_init_flag:
-                return f"{self.type} :: Kreator nowego projektu"
-            else:
-                return f"{self.type} :: Nowy"
+            return f"{self.type} :: Nowy"
         else:
             return f'{self.type} :: Edycja'
 
@@ -48,3 +45,6 @@ class WindowManager:
 
         if self.type == Const.ATTACHMENT_TITLE:
             AttachFmConst.AttachmentFormConstructor(self.form, self.operation, self.parent)
+
+    def set_panel_name(self, panel_name):
+        self.type = panel_name
