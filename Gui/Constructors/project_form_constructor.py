@@ -267,7 +267,6 @@ class ProjectFormConstructor:
             self.parent_logic.update_device_table_view('set', -1)
             self.parent_logic.update_attachment_table_view('set', -1)
 
-            self.next_step()
         else:
             MsgBox('error_dialog', 'Projekt', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()
@@ -329,7 +328,3 @@ class ProjectFormConstructor:
             else:
                 result = True
         return result
-
-    def next_step(self):
-        self.parent_logic.parent.button_clicked('add', Const.TASK_TITLE, QIcon(Const.TASK_ICON))
-

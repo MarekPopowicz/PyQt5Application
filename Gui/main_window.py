@@ -234,6 +234,7 @@ class MainWindow(QMainWindow):
     def create_buttons_panel(self):
         pdf_icon = QIcon(Const.PRINT_PDF_ICON)
         json_icon = QIcon(Const.JSON_ICON)
+        new_icon = QIcon(Const.NEW_ICON)
 
         button_print = QPushButton("Drukuj")
         button_print.setToolTip("Drukuj wybrany wniosek do pliku PDF")
@@ -241,16 +242,23 @@ class MainWindow(QMainWindow):
         button_print.setIcon(pdf_icon)
         button_print.clicked.connect(lambda: print_button_clicked())
 
-        button_new = QPushButton("Export")
-        button_new.setToolTip("Zapisz dane z wniosku do pliku")
-        button_new.setMinimumSize(Const.BUTTON_WIDTH, Const.BUTTON_HEIGHT)
-        button_new.setIcon(json_icon)
-        button_new.clicked.connect(self.json_button_clicked)
+        button_export = QPushButton("Export")
+        button_export.setToolTip("Zapisz dane z wniosku do pliku")
+        button_export.setMinimumSize(Const.BUTTON_WIDTH, Const.BUTTON_HEIGHT)
+        button_export.setIcon(json_icon)
+        button_export.clicked.connect(self.json_button_clicked)
+
+        button_creator_new = QPushButton("Nowy")
+        button_creator_new.setToolTip("Uruchom kreatora nowego wniosku")
+        button_creator_new.setMinimumSize(Const.BUTTON_WIDTH, Const.BUTTON_HEIGHT)
+        button_creator_new.setIcon(new_icon)
+        button_creator_new.clicked.connect(self.creator_button_clicked)
 
         buttons_layout = QHBoxLayout()
         buttons_layout.setAlignment(Qt.AlignRight)
-        buttons_layout.addWidget(button_new)
+        buttons_layout.addWidget(button_creator_new)
         buttons_layout.addWidget(button_print)
+        buttons_layout.addWidget(button_export)
 
         groupbox_buttons = QGroupBox()
         groupbox_buttons.setMaximumHeight(75)
@@ -278,6 +286,26 @@ class MainWindow(QMainWindow):
 
     def json_button_clicked(self):
         pass
+
+    def creator_button_clicked(self):
+        self.button_clicked('add', Const.PROJECT_TITLE, QIcon(Const.PROJECT_ICON))
+        next_task = True
+        while next_task:
+            self.button_clicked('add', Const.TASK_TITLE, QIcon(Const.TASK_ICON))
+            next_device = True
+            while next_device:
+                self.button_clicked('add', Const.DEVICE_TITLE, QIcon(Const.DEVICE_ICON))
+                next_device = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejne urządzenie do działki',
+                                     QIcon(Const.DEVICE_ICON)).last_user_answer
+
+            next_task = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejną działkę do wniosku',
+                               QIcon(Const.TASK_ICON)).last_user_answer
+
+        next_attachment = True
+        while next_attachment:
+            self.button_clicked('add', Const.ATTACHMENT_TITLE, QIcon(Const.ATTACHMENT_ICON))
+            next_attachment = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejny załacznik do wniosku',
+                                     QIcon(Const.TASK_ICON)).last_user_answer
 
     def button_clicked(self, operation_type, panel_name, icon: QIcon):
         task_id = self.findChild(QTableWidget, Const.TASK_TITLE).object_id
