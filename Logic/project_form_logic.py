@@ -143,11 +143,34 @@ class ProjectFormLogic:
             return None
 
     @staticmethod
+    def get_project_data(project_id: str):
+        query = dbQry.QUERY_SELECT_PROJECT
+        qry = query.replace('?', project_id)
+        project_data = DbMan.show_items(qry)
+        if len(project_data) > 0:
+            return project_data
+        else:
+            return []
+
+    @staticmethod
     def get_projects_list():
         projects_list = []
-        query = dbQry.QUERY_SELECT_ALL_PROJECTS
+        query = dbQry.QUERY_SELECT_PROJECTS
         projects = DbMan.show_items(query)
         if len(projects) > 0:
             for project in projects:
-                projects_list.append(f'{project[0]}.{project[1]}')
+                projects_list.append(project[0])
         return projects_list
+
+    @staticmethod
+    def search_projects_list(search_string: str):
+        projects_list = []
+        query = dbQry.QUERY_FIND_PROJECTS
+        qry = query.replace('?', search_string)
+        projects = DbMan.show_items(qry)
+        if len(projects) > 0:
+            for project in projects:
+                projects_list.append(project[0])
+        return projects_list
+
+

@@ -1,9 +1,11 @@
+import json
+import os
 import sys
-
-from PyQt5.QtCore import pyqtSlot, Qt
+from Logic.tools import data_export_prepare
+from PyQt5.QtCore import pyqtSlot, Qt, QFile
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QMainWindow, QAction, QDesktopWidget, QHBoxLayout, QVBoxLayout, QListWidget, \
-    QGroupBox, QWidget, QPushButton, QTextBrowser, QLineEdit, QMessageBox, QTableWidget
+    QGroupBox, QWidget, QPushButton, QTextBrowser, QLineEdit, QMessageBox, QTableWidget, QFileDialog
 
 import Gui.Components.table_view_panel as tblViewPnl
 from Data.db_manager import DBManager
@@ -22,6 +24,7 @@ class MainWindow(QMainWindow):
         with open('Gui/QSS/main_window.qss', 'r') as f:
             self.setStyleSheet(f.read())
         self.logic = MainWindowLogic(self)
+        self.exit = False
         self.current_project_id = -1
         self.setWindowTitle(Const.APP_NAME)
         self.setMinimumWidth(1200)
@@ -240,7 +243,7 @@ class MainWindow(QMainWindow):
         button_print.setToolTip("Drukuj wybrany wniosek do pliku PDF")
         button_print.setMinimumSize(Const.BUTTON_WIDTH, Const.BUTTON_HEIGHT)
         button_print.setIcon(pdf_icon)
-        button_print.clicked.connect(lambda: print_button_clicked())
+        button_print.clicked.connect(lambda: print_button_clicked)
 
         button_export = QPushButton("Export")
         button_export.setToolTip("Zapisz dane z wniosku do pliku")
@@ -271,9 +274,20 @@ class MainWindow(QMainWindow):
 
     def button_search_clicked(self):
         if self.search_line_edit.text() == '':
-            MsgBox('error_dialog', 'Szukaj', 'Nie wprowadzono frazy do znalezienia.', QIcon(Const.SEARCH_ICON))
+            self.set_data()
         else:
-            pass
+            first_item = self.logic.search_project_view_list(self.search_line_edit.text().strip())
+            if len(first_item) > 0:
+                end_index = first_item.find('.')
+                self.current_project_id = first_item[0:end_index]
+                self.logic.update_project_txt_browser()
+                self.logic.update_task_table_view('set', -1)
+                self.logic.update_device_table_view('set', -1)
+                self.logic.update_attachment_table_view('set', -1)
+
+            else:
+                MsgBox('ok_dialog', 'Szukaj', 'Nie znaleziono poszukiwanej frazy.', QIcon(Const.SEARCH_ICON))
+
         self.search_line_edit.setText('')
 
     def about(self):
@@ -285,27 +299,57 @@ class MainWindow(QMainWindow):
                           "zapisaniu całości w bazie danych na stacji roboczej użytkownika.")
 
     def json_button_clicked(self):
-        pass
+        application = data_export_prepare(self.logic.project_logic.get_project_data(self.current_project_id),
+                                          self.logic.task_logic.get_tasks_list(self.current_project_id),
+                                          self.logic.attachment_logic.get_attachment_data(self.current_project_id))
+
+        project_no = application["projekt"][0][0]
+        filename, _ = QFileDialog.getSaveFileName(None, "Wybierz lokalizację zapisu",
+                                                  os.path.expanduser("~/Desktop/" + project_no), "JSON (*.json)")
+        if not filename:
+            return
+
+        file = QFile(filename)
+        if not file.open(QFile.WriteOnly | QFile.Text):
+            MsgBox("error_dialog", "Export danych", f"Nie można zapisać do pliku:\n {filename}", QIcon(Const.APP_ICON))
+            return
+        else:
+            with open(filename, "w", encoding='utf8') as data_file:
+                json.dump(application, data_file, indent=4, ensure_ascii=False)
+
+                MsgBox("ok_dialog", "Export danych", f"Dane zostały wyeksportowane do pliku:\n {filename}",
+                       QIcon(Const.APP_ICON))
 
     def creator_button_clicked(self):
         self.button_clicked('add', Const.PROJECT_TITLE, QIcon(Const.PROJECT_ICON))
         next_task = True
         while next_task:
+            if self.exit:
+                self.exit = False
+                return
             self.button_clicked('add', Const.TASK_TITLE, QIcon(Const.TASK_ICON))
             next_device = True
             while next_device:
+                if self.exit:
+                    self.exit = False
+                    return
                 self.button_clicked('add', Const.DEVICE_TITLE, QIcon(Const.DEVICE_ICON))
-                next_device = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejne urządzenie do działki',
-                                     QIcon(Const.DEVICE_ICON)).last_user_answer
-
-            next_task = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejną działkę do wniosku',
-                               QIcon(Const.TASK_ICON)).last_user_answer
+                if not self.exit:
+                    next_device = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejne urządzenie do działki',
+                                         QIcon(Const.DEVICE_ICON)).last_user_answer
+            if not self.exit:
+                next_task = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejną działkę do wniosku',
+                                   QIcon(Const.TASK_ICON)).last_user_answer
 
         next_attachment = True
         while next_attachment:
+            if self.exit:
+                self.exit = False
+                return
             self.button_clicked('add', Const.ATTACHMENT_TITLE, QIcon(Const.ATTACHMENT_ICON))
-            next_attachment = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejny załacznik do wniosku',
-                                     QIcon(Const.TASK_ICON)).last_user_answer
+            if not self.exit:
+                next_attachment = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejny załacznik do wniosku',
+                                         QIcon(Const.TASK_ICON)).last_user_answer
 
     def button_clicked(self, operation_type, panel_name, icon: QIcon):
         task_id = self.findChild(QTableWidget, Const.TASK_TITLE).object_id
@@ -317,8 +361,9 @@ class MainWindow(QMainWindow):
 
             # Do not take any action if there is no project.
             if (
-                    panel_name == Const.TASK_TITLE or panel_name == Const.DEVICE_TITLE or panel_name == Const.ATTACHMENT_TITLE) \
-                    and (self.current_project_id == -1):
+                    panel_name == Const.TASK_TITLE or
+                    panel_name == Const.DEVICE_TITLE or
+                    panel_name == Const.ATTACHMENT_TITLE) and (self.current_project_id == -1):
                 MsgBox('error_dialog', panel_name, 'Brak projektu uniemożliwia wykonanie dalszych operacji.\n'
                                                    'Należy najpierw zarejestrować projekt.', QIcon(Const.APP_ICON))
                 return
@@ -480,5 +525,5 @@ def data_base_manager_window():
     pass
 
 
-def print_button_clicked(self):
+def print_button_clicked():
     pass

@@ -12,8 +12,7 @@ from Gui.Components.msg_dialogs import MsgBox
 from Gui.Components.searchable_combo import ExtendedComboBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
-from Logic.tools import test_data
-import Gui.Constructors.task_form_constructor as TaskFmConst
+from Logic.tools import test_data, test_code_data
 
 
 class ProjectFormConstructor:
@@ -271,6 +270,8 @@ class ProjectFormConstructor:
             MsgBox('error_dialog', 'Projekt', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()
 
+        self.parent.exit = False
+
     def set_project_data(self):
         project_id = self.parent_logic.parent.current_project_id
         project = self.parent_logic.project_logic.get_project(str(project_id))
@@ -312,9 +313,9 @@ class ProjectFormConstructor:
         nr = form_data[1]['Nr'].text()
         miejscowosc = form_data[4]['Miejscowość'].currentText()
 
-        results.append(test_data(r"I-WR-(AO|AI|BI)-\d{7}", nr_projektu))
-        results.append(test_data(r"[A-Z]{4}\d{3}", regulacja))
-        results.append(test_data(r"[A-Z]{4}\d{3}", roboczogodziny))
+        results.append(test_code_data(r"I-WR-(AO|AI|BI)-\d{7}", nr_projektu, 15))
+        results.append(test_code_data(r"[A-Z]{4}\d{3}", regulacja, 7))
+        results.append(test_code_data(r"[A-Z]{4}\d{3}", roboczogodziny, 7))
         results.append(test_data(r".+", nr))
         results.append(test_data(r".+", miejscowosc))
 

@@ -128,6 +128,8 @@ class AttachmentFormConstructor:
             MsgBox('error_dialog', 'Załącznik', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()
 
+        self.parent_logic.parent.exit = False
+
     def set_attachment_data(self):
         attachment = self.parent_logic.attachment_logic.get_attachment(str(self.current_attachment_id))
         if attachment is not None:

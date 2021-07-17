@@ -91,9 +91,20 @@ class DeviceFormLogic:
     @staticmethod
     def get_device_list(task_id):
         query = dbQry.QUERY_SELECT_DEVICES
-        qry = query.replace('?', task_id)
+        qry = query.replace('?', str(task_id))
         devices = DbMan.show_items(qry)
         if len(devices) > 0:
             return devices
         else:
             return []
+
+    @staticmethod
+    def get_devices_data(task_id):
+        query = dbQry.QUERY_SELECT_DEVICES_DATA
+        qry = query.replace('?', str(task_id))
+        devices = DbMan.show_items(qry)
+        if len(devices) > 0:
+            return devices
+        else:
+            return []
+

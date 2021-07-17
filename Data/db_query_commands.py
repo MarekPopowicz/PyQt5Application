@@ -182,18 +182,31 @@ QUERY_SELECT_TASK = 'SELECT id, register_no, parcel_no, map_sheet_no, area_name,
 QUERY_SELECT_PROJECT = 'SELECT nr_sap, nr_psp, nr_sap_work_hours, project_priority, task_name, task_type, place, ' \
                        'street, engineer_name, registration_date, up_type, up_no, up_date, notice ' \
                        'FROM projects WHERE id = ?;'
+
+QUERY_FIND_PROJECTS = 'SELECT (id || "." || nr_sap) AS expr FROM projects WHERE expr LIKE "%?%";'
+
+QUERY_SELECT_PROJECTS = 'SELECT (id || "." || nr_sap) AS expr FROM projects;'
+
 QUERY_SELECT_ALL_PROJECTS = 'SELECT id, nr_sap, nr_psp, nr_sap_work_hours, project_priority, task_name, task_type, ' \
                             'place, street, engineer_name, registration_date, up_type, up_no, notice FROM projects; '
+
+
 QUERY_SELECT_DEVICE = 'SELECT id, task_id, device_type, device_width, device_long, regulation_type, notice FROM ' \
                       'devices WHERE id = ?; '
 
 QUERY_SELECT_DEVICES = 'SELECT id, device_type, device_long, device_width, regulation_type, notice FROM ' \
                             'devices WHERE task_id = ?; '
 
+QUERY_SELECT_DEVICES_DATA = 'SELECT task_id, device_type, device_long, device_width, regulation_type, notice FROM ' \
+                            'devices WHERE task_id = ?; '
+
 QUERY_SELECT_ATTACHMENT = 'SELECT id, project_id, document_name, document_original, document_count, notice FROM ' \
                           'attachments WHERE id = ?;'
 
 QUERY_SELECT_ATTACHMENTS = 'SELECT id, document_name, document_original, document_count, notice FROM ' \
+                           'attachments WHERE project_id = ?; '
+
+QUERY_SELECT_ATTACHMENTS_DATA = 'SELECT document_name, document_original, document_count, notice FROM ' \
                            'attachments WHERE project_id = ?; '
 
 QUERY_SELECT_USER = 'SELECT name, email, password, phone FROM users;'

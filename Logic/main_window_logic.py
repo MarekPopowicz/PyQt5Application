@@ -36,6 +36,17 @@ class MainWindowLogic:
         else:
             list_widget.clear()
 
+    def search_project_view_list(self, search_string: str):
+        project_list = self.project_logic.search_projects_list(search_string)
+        list_widget = self.parent.findChild(QListWidget, 'list_widget')
+        if len(project_list) > 0:
+            list_widget.clear()
+            list_widget.addItems(project_list)
+            list_widget.setCurrentRow(0)
+            return project_list[0]
+        else:
+            return ''
+
     def update_task_table_view(self, operation_type, task_id):
         task_table_widget = self.parent.findChild(QTableWidget, Const.TASK_TITLE)
 
@@ -263,3 +274,5 @@ def table_item_appender(table, *args):
     table.insertRow(table.rowCount())
     set_columns(table.columnCount(), 0)
     table.horizontalHeader().setStretchLastSection(True)
+
+
