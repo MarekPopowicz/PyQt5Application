@@ -158,6 +158,8 @@ class DeviceFormConstructor:
             MsgBox('error_dialog', 'Urządzenie', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()
 
+        self.parent_logic.parent.exit = False
+
     def set_device_data(self):
         device = self.parent_logic.device_logic.get_device(str(self.current_device_id))
         if device is not None:

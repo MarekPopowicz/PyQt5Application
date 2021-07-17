@@ -89,3 +89,13 @@ class AttachmentFormLogic:
             return attachments
         else:
             return []
+
+    @staticmethod
+    def get_attachment_data(project_id):
+        query = dbQry.QUERY_SELECT_ATTACHMENTS_DATA
+        qry = query.replace('?', project_id)
+        attachments = DbMan.show_items(qry)
+        if len(attachments) > 0:
+            return attachments
+        else:
+            return []

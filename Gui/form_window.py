@@ -19,6 +19,7 @@ class WindowManager:
 
     def create_form(self):
         form = QDialog()
+        form.closeEvent = self.close_event
         form.__setattr__('edit_controls', [])
         form.setWindowTitle(self.type)
         form.setWindowIcon(self.icon)
@@ -26,6 +27,10 @@ class WindowManager:
         vbox = QVBoxLayout()
         form.setLayout(vbox)
         return form
+
+    def close_event(self, e):
+        self.parent.exit = True
+        e.accept()
 
     def set_window_title(self):
         if self.operation == 'add':

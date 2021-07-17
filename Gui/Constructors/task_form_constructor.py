@@ -130,6 +130,8 @@ class TaskFormConstructor:
             self.form.close()
             self.parent_logic.parent.creator_init_flag = False
 
+        self.parent_logic.parent.exit = False
+
     def set_task_data(self):
         task = self.parent_logic.task_logic.get_task(str(self.current_task_id))
         if task is not None:
