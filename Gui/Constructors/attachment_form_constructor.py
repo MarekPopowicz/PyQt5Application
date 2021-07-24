@@ -123,7 +123,10 @@ class AttachmentFormConstructor:
         if result:
             MsgBox('ok_dialog', 'Załącznik', 'Operacja zakończona sukcesem.', QIcon(Const.APP_ICON))
             self.form.close()
-            self.parent_logic.update_attachment_table_view(self.operation, attachment_id)
+            if self.operation == 'add':
+                self.parent_logic.update_attachment_table_view(self.operation, attachment_id)
+            else:
+                self.parent_logic.update_attachment_table_view(self.operation, self.current_attachment_id)
         else:
             MsgBox('error_dialog', 'Załącznik', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()

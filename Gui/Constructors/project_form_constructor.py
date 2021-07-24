@@ -12,7 +12,7 @@ from Gui.Components.msg_dialogs import MsgBox
 from Gui.Components.searchable_combo import ExtendedComboBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
-from Logic.tools import test_data, test_code_data
+from Logic.tools import test_data
 
 
 class ProjectFormConstructor:
@@ -313,9 +313,9 @@ class ProjectFormConstructor:
         nr = form_data[1]['Nr'].text()
         miejscowosc = form_data[4]['Miejscowość'].currentText()
 
-        results.append(test_code_data(r"I-WR-(AO|AI|BI)-\d{7}", nr_projektu, 15))
-        results.append(test_code_data(r"[A-Z]{4}\d{3}", regulacja, 7))
-        results.append(test_code_data(r"[A-Z]{4}\d{3}", roboczogodziny, 7))
+        results.append(test_data(r"I-WR-(AO|AI|BI)-\d{7}", nr_projektu, 15))
+        results.append(test_data(r"[A-Z]{4}\d{3}", regulacja, 7))
+        results.append(test_data(r"[A-Z]{4}\d{3}", roboczogodziny, 7))
         results.append(test_data(r".+", nr))
         results.append(test_data(r".+", miejscowosc))
 

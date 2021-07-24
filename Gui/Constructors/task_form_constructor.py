@@ -123,7 +123,10 @@ class TaskFormConstructor:
         if result:
             MsgBox('ok_dialog', 'Działka', 'Operacja zakończona sukcesem.', QIcon(Const.APP_ICON))
             self.form.close()
-            self.parent_logic.update_task_table_view(self.operation, task_id)
+            if self.operation == 'add':
+                self.parent_logic.update_task_table_view(self.operation, task_id)
+            else:
+                self.parent_logic.update_task_table_view(self.operation, self.current_task_id)
             self.parent_logic.update_device_table_view('set', -1)
         else:
             MsgBox('error_dialog', 'Działka', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
@@ -153,7 +156,7 @@ class TaskFormConstructor:
         obreb = form_data[0]['Obręb'].text()
         wlasciciel = form_data[1]['Właściciel'].toPlainText()
 
-        results.append(test_data(r"[A-Z]{2}\d[A-Z]{1}/\d{8}/\d{1}", kw))
+        results.append(test_data(r"[A-Z]{2}\d[A-Z]{1}/\d{8}/\d{1}", kw, 15))
         results.append(test_data(r"\d+/\d+|\d+", dz))
         results.append(test_data(r"\d+", am))
         results.append(test_data(r".+", obreb))

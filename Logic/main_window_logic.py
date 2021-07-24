@@ -70,7 +70,7 @@ class MainWindowLogic:
             tasks_list = self.task_logic.get_tasks_list(str(self.parent.current_project_id))
             task_table_widget.setRowCount(0)
             if len(tasks_list) > 0:
-                task_table_widget.object_id = int(tasks_list[0][0])
+                task_table_widget.object_id = int(task_id)
                 for task in tasks_list:
                     table_item_appender(task_table_widget, task)
                 task_table_widget.selectRow(row)
@@ -127,7 +127,7 @@ class MainWindowLogic:
             device_list = self.device_logic.get_device_list(str(current_task_id))
             device_table_widget.setRowCount(0)
             if len(device_list) > 0:
-                device_table_widget.object_id = int(device_list[0][0])
+                device_table_widget.object_id = int(device_id)
                 for device in device_list:
                     table_item_appender(device_table_widget, device)
                 device_table_widget.selectRow(row)
@@ -170,6 +170,7 @@ class MainWindowLogic:
             attachment_table_widget.setRowCount(0)
             if len(attachment_list) > 0:
                 set_attachment_table_widget(attachment_list, attachment_table_widget)
+                attachment_table_widget.object_id = int(attachment_id)
                 attachment_table_widget.selectRow(row)
 
     def update_project_txt_browser(self):

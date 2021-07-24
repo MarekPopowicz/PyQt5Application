@@ -322,7 +322,10 @@ class MainWindow(QMainWindow):
 
                 MsgBox("ok_dialog", "Export danych", f"Dane zostały wyeksportowane do pliku:\n {filename}",
                        QIcon(Const.APP_ICON))
-                message_text = ""
+                message_text = f"Witam.\n\n" \
+                               f"W załączeniu przekazuję wniosek o regulację terenowo-prawną oraz plik z danymi dla " \
+                               f"zadania: {project_no}.\nProszę o informację komu imiennie została przydzielona " \
+                               f"wnioskowana sprawa do realizacji.\n\nPozdrawiam. "
                 pyperclip.copy(message_text)
 
     def creator_button_clicked(self):

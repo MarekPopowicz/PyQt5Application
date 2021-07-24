@@ -153,7 +153,10 @@ class DeviceFormConstructor:
         if result:
             MsgBox('ok_dialog', 'Urządzenie', 'Operacja zakończona sukcesem.', QIcon(Const.APP_ICON))
             self.form.close()
-            self.parent_logic.update_device_table_view(self.operation, device_id)
+            if self.operation == 'add':
+                self.parent_logic.update_device_table_view(self.operation, device_id)
+            else:
+                self.parent_logic.update_device_table_view(self.operation, self.current_device_id)
         else:
             MsgBox('error_dialog', 'Urządzenie', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
             self.form.close()

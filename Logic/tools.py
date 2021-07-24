@@ -2,24 +2,16 @@ import re
 from Logic.device_form_logic import DeviceFormLogic
 
 
-def test_code_data(pattern, test_string, length):
-    result = re.match(pattern, test_string)
-    if result and len(test_string) == length:
-        return True
-    else:
-        return False
-
-
-def test_data(pattern, test_string):
+def test_data(pattern, test_string, length=0):
     result = re.match(pattern, test_string)
     if result:
-        return True
+        if length == len(test_string) or length == 0:
+            return True
     else:
         return False
 
 
 def data_export_prepare(project, tasks, attachments):
-
     application = {
         "projekt": project,
         "dzialki": tasks,
