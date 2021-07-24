@@ -39,4 +39,6 @@ class UserFormLogic:
             self.user.email = result[0][1]
             self.user.password = result[0][2]
             self.user.phone = result[0][3]
-            return True
+            return result
+        else:
+            return None

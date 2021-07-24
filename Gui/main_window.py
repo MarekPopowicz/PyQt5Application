@@ -1,6 +1,9 @@
 import json
 import os
 import sys
+
+import pyperclip
+
 from Logic.tools import data_export_prepare
 from PyQt5.QtCore import pyqtSlot, Qt, QFile
 from PyQt5.QtGui import QIcon, QFont
@@ -235,15 +238,15 @@ class MainWindow(QMainWindow):
         attachment_table_widget.object_id = int(attachment_table_widget.item(row, 0).text())
 
     def create_buttons_panel(self):
-        pdf_icon = QIcon(Const.PRINT_PDF_ICON)
+        preview_icon = QIcon(Const.PREVIEW_ICON)
         json_icon = QIcon(Const.JSON_ICON)
         new_icon = QIcon(Const.NEW_ICON)
 
-        button_print = QPushButton("Drukuj")
-        button_print.setToolTip("Drukuj wybrany wniosek do pliku PDF")
+        button_print = QPushButton("Podgląd")
+        button_print.setToolTip("Podgląd wybranego wniosku")
         button_print.setMinimumSize(Const.BUTTON_WIDTH, Const.BUTTON_HEIGHT)
-        button_print.setIcon(pdf_icon)
-        button_print.clicked.connect(lambda: print_button_clicked)
+        button_print.setIcon(preview_icon)
+        button_print.clicked.connect(self.print_button_clicked)
 
         button_export = QPushButton("Export")
         button_export.setToolTip("Zapisz dane z wniosku do pliku")
@@ -319,6 +322,8 @@ class MainWindow(QMainWindow):
 
                 MsgBox("ok_dialog", "Export danych", f"Dane zostały wyeksportowane do pliku:\n {filename}",
                        QIcon(Const.APP_ICON))
+                message_text = ""
+                pyperclip.copy(message_text)
 
     def creator_button_clicked(self):
         self.button_clicked('add', Const.PROJECT_TITLE, QIcon(Const.PROJECT_ICON))
@@ -512,6 +517,9 @@ class MainWindow(QMainWindow):
         self.logic.update_device_table_view('set', -1)
         self.logic.update_attachment_table_view('set', -1)
 
+    def print_button_clicked(self):
+        WindowManager(Const.PREVIEW_TITLE, QIcon(Const.PREVIEW_ICON), 'show', self)
+
 
 def user_window():
     return len(UserFormConstructor().logic.user.name)
@@ -525,5 +533,3 @@ def data_base_manager_window():
     pass
 
 
-def print_button_clicked():
-    pass

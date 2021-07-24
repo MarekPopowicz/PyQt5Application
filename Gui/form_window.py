@@ -6,6 +6,7 @@ import Gui.Constructors.project_form_constructor as ProjFmConst
 import Gui.Constructors.task_form_constructor as TaskFmConst
 import Gui.Constructors.device_form_constructor as DevFmConst
 import Gui.Constructors.attachment_form_constructor as AttachFmConst
+import Gui.Constructors.application_form_constructor as AppFmConst
 
 
 class WindowManager:
@@ -35,8 +36,10 @@ class WindowManager:
     def set_window_title(self):
         if self.operation == 'add':
             return f"{self.type} :: Nowy"
-        else:
+        elif self.operation == 'edit':
             return f'{self.type} :: Edycja'
+        else:
+            return self.type
 
     def set_form_controls(self):
         if self.type == Const.PROJECT_TITLE:
@@ -51,5 +54,5 @@ class WindowManager:
         if self.type == Const.ATTACHMENT_TITLE:
             AttachFmConst.AttachmentFormConstructor(self.form, self.operation, self.parent)
 
-    def set_panel_name(self, panel_name):
-        self.type = panel_name
+        if self.type == Const.PREVIEW_TITLE:
+            AppFmConst.ApplicationFormConstructor(self.form, self.operation, self.parent)

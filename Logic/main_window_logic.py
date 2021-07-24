@@ -4,6 +4,8 @@ from Logic.attachment_form_logic import AttachmentFormLogic
 from Logic.device_form_logic import DeviceFormLogic
 from Logic.project_form_logic import ProjectFormLogic
 from Logic.task_form_logic import TaskFormLogic
+from Logic.application_form_logic import ApplicationFormLogic
+from Logic.user_form_logic import UserFormLogic
 
 FONT_SIZE = '15px'
 LABEL_COLOR = 'black'
@@ -19,6 +21,8 @@ class MainWindowLogic:
         self.task_logic = TaskFormLogic()
         self.device_logic = DeviceFormLogic()
         self.attachment_logic = AttachmentFormLogic()
+        self.application_logic = ApplicationFormLogic()
+        self.user_logic = UserFormLogic()
 
     def update_project_view_list(self, operation_type):
         project_list = self.project_logic.get_projects_list()

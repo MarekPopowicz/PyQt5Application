@@ -6,6 +6,7 @@ TASK_TITLE = "Działki"
 DEVICE_TITLE = "Urządzenia"
 ATTACHMENT_TITLE = "Załączniki"
 USER_TITLE = "Użytkownik"
+PREVIEW_TITLE = "Podgląd Wydruku"
 
 APP_ICON = 'Images/suv-car.png'
 USER_ICON = 'Images/user.png'
@@ -25,6 +26,8 @@ SAVE_ICON = 'Images/save.png'
 CANCEL_ICON = 'Images/cancel.png'
 JSON_ICON = 'Images/json.png'
 NEW_ICON = 'Images/star.png'
+PREVIEW_ICON = 'Images/preview.png'
+TAURON_LOGO = 'Images/logo.png'
 
 TASKS = 'Zadania'
 STREETS = 'Ulice'
