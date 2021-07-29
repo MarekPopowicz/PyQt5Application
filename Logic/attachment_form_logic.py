@@ -41,6 +41,13 @@ class AttachmentFormLogic:
         else:
             return 0
 
+    @staticmethod
+    def add_attachments(attachment_list):
+        query = dbQry.QUERY_INSERT_ATTACHMENT
+        for attachment in attachment_list:
+            result = DbMan.add_new_items(query, attachment)
+        return result
+
     def update_attachment(self):
         query = dbQry.QUERY_UPDATE_ATTACHMENT
         qry = query.replace('id_value', str(self.attachment.id))
@@ -69,21 +76,21 @@ class AttachmentFormLogic:
     @staticmethod
     def delete_attachment(attachment_id: str):
         query = dbQry.QUERY_DELETE_ATTACHMENT
-        qry = query.replace('?', attachment_id)
+        qry = query.replace('?', str(attachment_id))
         result = DbMan.delete_item(qry)
         return result
 
     @staticmethod
     def delete_attachments(project_id: str):
         query = dbQry.QUERY_DELETE_ATTACHMENTS
-        qry = query.replace('?', project_id)
+        qry = query.replace('?', str(project_id))
         result = DbMan.delete_item(qry)
         return result
 
     @staticmethod
     def get_attachment_list(project_id):
         query = dbQry.QUERY_SELECT_ATTACHMENTS
-        qry = query.replace('?', project_id)
+        qry = query.replace('?', str(project_id))
         attachments = DbMan.show_items(qry)
         if len(attachments) > 0:
             return attachments
@@ -93,7 +100,7 @@ class AttachmentFormLogic:
     @staticmethod
     def get_attachment_data(project_id):
         query = dbQry.QUERY_SELECT_ATTACHMENTS_DATA
-        qry = query.replace('?', project_id)
+        qry = query.replace('?', str(project_id))
         attachments = DbMan.show_items(qry)
         if len(attachments) > 0:
             return attachments

@@ -1,7 +1,38 @@
+import os
 import sqlite3
 from sqlite3 import Error
 
-DBNAME = "register.db"
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QFileDialog
+
+from Gui.Components.constants import resource_path
+from Gui.Components.msg_dialogs import MsgBox
+import Gui.Components.constants as Const
+
+
+def write_to_file(path_file_name, data_to_write, mode):
+    """ write document to file """
+    try:
+        with open(path_file_name, mode=mode, encoding='utf8') as file:
+            file.write(data_to_write)
+    except OSError:
+        return False
+
+    return True
+
+
+def read_doc_lines(path_file_name):
+    """ Return list of file document's paragraphs """
+    doc_line_list = []
+    try:
+        with open(path_file_name) as file:
+            doc = file.readlines()
+            for line in doc:
+                doc_line_list.append(line.rstrip('\n'))
+    except OSError:
+        pass
+
+    return doc_line_list
 
 
 class DB:
@@ -21,11 +52,53 @@ class DB:
 
     @staticmethod
     def get_connection():
-        conn = create_connection(DBNAME)
-        if conn is not None:
-            return conn
+        text = ''
+
+        data_path = resource_path("Data\\")
+        file = data_path + "user_data.txt"
+        data = read_doc_lines(file)
+
+        # Plik danych zawiera informacje
+        if len(data) > 0:
+            path_db = data[0].rstrip('\n')
+
+            # Brak pliku w podanej lokalizacji
+            if not os.path.exists(path_db):
+                answer = MsgBox('ok_cancel_dlg', 'Pytanie', 'Baza danych została usunięta lub przeniesiona.\n'
+                                                            'Czy utworzyć nową bazę danych ?',
+                                QIcon(Const.APP_ICON)).last_user_answer
+                if answer:
+                    filename, _ = QFileDialog.getSaveFileName(None, "Wybierz lokalizację dla pliku nowej bazy danych.",
+                                                              os.path.expanduser("~/Desktop/database.db"),
+                                                              "DataBase (*.db)")
+                    open(file, "w").close()
+                    write_to_file(file, filename + '\n', "w")
+
+                else:
+                    filename, _ = QFileDialog.getOpenFileName(None, "Wskaż lokalizację dotychczasowej bazy danych.",
+                                                              os.path.expanduser("~/Desktop/database.db"),
+                                                              "DataBase (*.db)")
+
+                    db_path = read_doc_lines(file)
+                    db_path[0] = filename
+                    for item in db_path:
+                        text = text + item + '\n'
+                        write_to_file(file, text, "w")
+
+                connection = create_connection(filename)
+            # Istnieje plik w podanej lokalizacji
+            else:
+                connection = create_connection(path_db)
+
+        # Plik danych nie zawiera informacji
         else:
-            return None
+            filename, _ = QFileDialog.getSaveFileName(None, "Wybierz lokalizację dla pliku nowej bazy danych.",
+                                                      os.path.expanduser("~/Desktop/database.db"),
+                                                      "DataBase (*.db)")
+            write_to_file(file, filename + '\n', "w")
+            connection = create_connection(filename)
+
+        return connection
 
 
 def create_connection(db_name):

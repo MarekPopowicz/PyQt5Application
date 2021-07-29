@@ -111,7 +111,7 @@ class ProjectFormLogic:
     def get_user():
         query = dbQry.QUERY_SELECT_USER
         result = DbMan.show_items(query)
-        if len(result) > 0:
+        if result is not None and len(result) > 0:
             return result
         else:
             return None
@@ -144,8 +144,10 @@ class ProjectFormLogic:
 
     @staticmethod
     def get_project_data(project_id: str):
+        if project_id == -1:
+            return []
         query = dbQry.QUERY_SELECT_PROJECT
-        qry = query.replace('?', project_id)
+        qry = query.replace('?', str(project_id))
         project_data = DbMan.show_items(qry)
         if len(project_data) > 0:
             return project_data

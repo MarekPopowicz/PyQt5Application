@@ -9,7 +9,6 @@ PROJECT_DOC_BASIS = [
     'Inny'
 ]
 
-
 PROJECTS_TASKS_TYPES = [
     'Budowa',
     'Przebudowa',
@@ -3652,71 +3651,36 @@ REGULATIONS = [
     'Zamiana praw własności',
     'Nieodpłatne nabycie prawa użytkowania',
     'Odpłatne nabycie prawa użytkowania',
-    'Zrzeczenie prawa do służebności przesyłu',
     'Dzierżawa nieruchomości gruntowej',
-    'Najem nieruchomości lokalowej',
-    'Uzgoodninie wejścia w teren z pracami budowlanymi',
-    'Sądowe stwierdzenie zasiedzenia służebności przesyłu',
-    'Decyzja administracyjna wejścia w teren',
-    'Uzgodnienie jednorazowego odpłatnego wejścia w teren'
+    'Najem nieruchomości lokalowej'
 ]
-
-NOTARY_OFFICES = [
-    'Kancelaria Notarialna Radosław Pauter',
-    'Kancelaria Notarialna Agnieszka Kogut',
-    'Kancelaria Notarialna Agata Tyc'
-]
-
 
 DOCUMENTS = [
     'Decyzja o pozwoleniu na budowę',
-    'Protokół odbioru robót budowlanych',
-    'Protokół przyjęcia terenu na czas budowy',
-    'Protokół zwrotu terenu po zakończonej budowie',
     'Porozumienie z właścicielem terenu',
     'Protokół z negocjacji',
     'Mapa inwentaryzacji geodezji powykonawczej',
     'Mapa zasadnicza w skali 1 do 500',
+    'Mapa ewidencyjna w skali 1 do 100',
+    'Mapa ewidencyjna w skali 1 do 500',
+    'Mapa ewidencyjna w skali 1 do 1000',
     'Decyzja o podziale geodezyjnym',
     'Wypis i wyrys z ewidencji gruntów i budynków',
-    'Protokół uzgodnień',
-    'Protokół rokowań',
     'Operat szacunkowy',
     'Umowa',
-    'Aneks do protokołu uzgodnień',
-    'Decyzja o lokalizacji celu publicznego',
     'Porozumienie',
     'Wyciąg z wykazu zmian danych ewidencyjnych',
-    'Zgoda na zajęcie terenu na czas robót budowlanych',
-    'Zawiadomienie o zakończeniu budowy',
-    'Zgłoszenie do odbioru',
-    'Aneks do protokołu przekazania terenu na czas budowy',
     'Umowa o przyłączenie',
     'Aneks do umowy',
     'Uproszczony wypis z rejestru gruntów',
-    'Mapa ewidencyjna w skali 1 do 1000',
-    'Plan sytuacyjny w skali 1 do 100',
-    'Plan sytuacyjny w skali 1 do 500',
-    'Pełnomocnictwo notarialne',
+    'Plan sytuacyjny',
     'Wyciąg z operatu szacunkowego',
     'Wydruk z elektronicznego systemu ksiąg wieczystych',
     'Wydruk z korespondencji elektronicznej',
     'Wniosek o uzyskanie praw do nieruchomości',
     'Ogłoszenie o przetargu',
-    'Statut',
     'Wydruk z elektronicznego systemu Krajowego Rejestru Sądowego',
-    'Protokół z przetargu',
-    'Zgłoszenie wejścia w teren nieruchomości',
-    'Zgłoszenie zejścia z terenu nieruchomości',
     'Uproszczony Wypis z Rejestru Gruntów',
-    'Mapa ewidencyjna w skali 1 do 2000',
     'Treść formuły uprawnień',
     'Warunki uzgodnienia'
-]
-
-USERS = [
-    ('Administrator', 'administrator', 'administrator@tauron-dystrybucja.pl', '123456', '889-00-00'),
-    ('Owner', 'owner', 'owner@tauron-dystrybucja.pl', '123456', '889-00-00'),
-    ('User', 'user', 'user@tauron-dystrybucja.pl', '123456', '889-00-00'),
-    ('Supervisior', 'supervisor', 'supervisior@tauron-dystrybucja.pl', '123456', '889-00-00')
 ]

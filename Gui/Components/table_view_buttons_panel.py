@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
+import Gui.Components.constants as Const
 
 
 class Button(QPushButton):
@@ -14,9 +15,9 @@ class ButtonPanel(QWidget):
         super().__init__()
         # Task TableView Widget Creation
 
-        add_icon = QIcon('Images/plus.png')
-        edit_icon = QIcon('Images/pencil.png')
-        delete_icon = QIcon('Images/delete.png')
+        add_icon = QIcon(Const.PLUS_ICON)
+        edit_icon = QIcon(Const.PENCIL_ICON)
+        delete_icon = QIcon(Const.DELETE_ICON)
 
         # Create layout
         layout = QVBoxLayout()

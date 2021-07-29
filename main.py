@@ -1,14 +1,15 @@
 import sys
 import time
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
-
+import Gui.Components.constants as Const
 from Data.db_manager import DBManager
 from Gui.main_window import MainWindow
 
 # init application object
+
+
 app = QApplication(sys.argv)
 app.setStyle('Fusion')
 
@@ -16,11 +17,13 @@ app.setStyle('Fusion')
 DBManager()
 
 # Create and display the splash screen
-splash_pix = QPixmap('Images/car.jpg')
+splash_pix = QPixmap(Const.SPLASH_IMAGE)
 
 splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
 splash.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
 splash.setEnabled(False)
+
+
 # splash = QSplashScreen(splash_pix)
 # adding progress bar
 
@@ -30,10 +33,12 @@ splash.setEnabled(False)
 
 # splash.setMask(splash_pix.mask())
 
+
 splash.show()
 
-text = "<br/><h1><strong><font color = 'green'>Twoja Terenówka</font></strong></h1><h3>(c) 2021 Marek " \
-       "Popowicz</h3><h2>Witaj...</h2> "
+text = "<br/><h1><strong><font color = 'green'>Twoja Terenówka</font></strong></h1>" \
+       "<h3>(c) 2021 Marek Popowicz</h3>" \
+       "<h2>Witaj...</h2> "
 
 splash.showMessage(text, Qt.AlignTop | Qt.AlignHCenter | Qt.AlignAbsolute)
 

@@ -10,7 +10,7 @@ class ButtonPanel:
         self.create_button_panel()
 
     def create_button_panel(self):
-        save_icon = QIcon('Images/save.png')
+        save_icon = QIcon(Const.SAVE_ICON)
         button_save = QPushButton("Zapisz")
         button_save.setObjectName("Zapisz")
         button_save.setToolTip("Zapisz")

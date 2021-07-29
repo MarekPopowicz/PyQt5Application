@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from PyQt5.QtWidgets import QTextBrowser, QListWidget, QTableWidgetItem, QTableWidget
 import Gui.Components.constants as Const
 from Logic.attachment_form_logic import AttachmentFormLogic
@@ -5,6 +8,7 @@ from Logic.device_form_logic import DeviceFormLogic
 from Logic.project_form_logic import ProjectFormLogic
 from Logic.task_form_logic import TaskFormLogic
 from Logic.application_form_logic import ApplicationFormLogic
+from Logic.tools import read_doc_lines
 from Logic.user_form_logic import UserFormLogic
 
 FONT_SIZE = '15px'
@@ -183,6 +187,19 @@ class MainWindowLogic:
                 set_project_txt_browser_data(project, txt_bsr_project)
             else:
                 return
+
+    @staticmethod
+    def reset_database():
+        data_path = Const.resource_path("Data\\")
+        file = data_path + "user_data.txt"
+        data = read_doc_lines(file)
+        db = data[0]
+        if os.path.exists(db):
+            os.remove(db)
+            open(file, "w").close()
+            return True
+        else:
+            return False
 
 
 def set_project_txt_browser_data(project, txt_bsr: QTextBrowser):

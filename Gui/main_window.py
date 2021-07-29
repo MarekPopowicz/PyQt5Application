@@ -2,13 +2,11 @@ import json
 import os
 import sys
 
-import pyperclip
-
-from Logic.tools import data_export_prepare
+from Logic.tools import data_export_prepare, resource_path, read_doc_lines
 from PyQt5.QtCore import pyqtSlot, Qt, QFile
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QMainWindow, QAction, QDesktopWidget, QHBoxLayout, QVBoxLayout, QListWidget, \
-    QGroupBox, QWidget, QPushButton, QTextBrowser, QLineEdit, QMessageBox, QTableWidget, QFileDialog
+    QGroupBox, QWidget, QPushButton, QTextBrowser, QLineEdit, QMessageBox, QTableWidget, QFileDialog, QInputDialog
 
 import Gui.Components.table_view_panel as tblViewPnl
 from Data.db_manager import DBManager
@@ -21,10 +19,48 @@ import Gui.Components.constants as Const
 from Logic.main_window_logic import MainWindowLogic
 
 
+class InputPasswordWindow(QWidget):
+
+    def __init__(self, password):
+        super().__init__()
+        self.password = password
+        self.center()
+        self.access = self.verified()
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+    def verified(self):
+        dlg = QInputDialog(self)
+        dlg.setCancelButtonText("Anuluj")
+        dlg.setLabelText("Podaj hasło:")
+        dlg.setInputMode(QInputDialog.TextInput)
+        dlg.resize(500, 100)
+        user_data = read_doc_lines(resource_path("Data\\") + "user_data.txt")
+        if len(user_data) > 1:
+            user_name = user_data[1]
+            dlg.setWindowTitle(f"Autoryzacja Użytkownika: {user_name}")
+        else:
+            dlg.setWindowTitle(f"Autoryzacja Użytkownika")
+        self.setWindowIcon(QIcon(Const.MAN_ICON))
+
+        response = False
+        ok = dlg.exec_()
+        value = dlg.textValue()
+        if ok == dlg.Accepted and value == self.password:
+            return True
+        else:
+            return response
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        with open('Gui/QSS/main_window.qss', 'r') as f:
+        qss_dir = resource_path("Gui\\QSS\\")
+        with open(qss_dir + 'main_window.qss', 'r') as f:
             self.setStyleSheet(f.read())
         self.logic = MainWindowLogic(self)
         self.exit = False
@@ -45,6 +81,7 @@ class MainWindow(QMainWindow):
         self.create_buttons_panel()
         self.main_layout.addLayout(self.right_layout)
         self.set_data()
+
         if not DBManager.if_user_exists():
             MsgBox('ok_dialog', 'Użytkownik',
                    'Wykryto brak użytkownika\nDalsze korzystanie z aplikacji wymaga rejestracji użytkownika.',
@@ -54,16 +91,26 @@ class MainWindow(QMainWindow):
             else:
                 sys.exit()
         else:
-            self.show()
+            if self.check_user_password():
+                self.show()
+            else:
+                MsgBox('error_dialog', 'Użytkownik', 'Brak autoryzacji użytkownika uniemożliwia wykonanie dalszych '
+                                                     'operacji. ', QIcon(Const.APP_ICON))
+
+    def check_user_password(self):
+        result = self.logic.user_logic.get_current_user()
+
+        if len(result[0][2]) > 0:
+            dlg = InputPasswordWindow(result[0][2])
+            if dlg.access:
+                return True
+            else:
+                return False
 
     def center(self):
-        # geometry of the main window
         qr = self.frameGeometry()
-        # center point of screen
         cp = QDesktopWidget().availableGeometry().center()
-        # move rectangle's center point to screen's center point
         qr.moveCenter(cp)
-        # top left of rectangle becomes top left of window centering it
         self.move(qr.topLeft().x(), 20)
 
     def create_menu(self):
@@ -99,7 +146,7 @@ class MainWindow(QMainWindow):
 
         data_action = QAction(QIcon(Const.DATABASE_ICON), Const.DATABASE, self)
         settings_menu.addAction(data_action)
-        data_action.triggered.connect(lambda: data_base_manager_window())
+        data_action.triggered.connect(self.data_base_manager_window)
 
         user_action = QAction(QIcon(Const.USER_ICON), Const.USER_TITLE, self)
         settings_menu.addAction(user_action)
@@ -294,14 +341,22 @@ class MainWindow(QMainWindow):
         self.search_line_edit.setText('')
 
     def about(self):
+        user_data = read_doc_lines(resource_path("Data\\") + "user_data.txt")
+        if len(user_data) > 1:
+            db_name = user_data[0]
         QMessageBox.about(self, "O programie",
                           "Aplikacja <b>'Twoja Terenówka'</b> to narzędzie "
                           "do tworzenia cyfrowego <b>wniosku o regulację terenowo-prawną.</b> "
                           "<br/>"
                           "Zapewnia kontrolę kompletności przekazywanych informacji, oraz "
-                          "zapisaniu całości w bazie danych na stacji roboczej użytkownika.")
+                          "zapisaniu całości w bazie danych na stacji roboczej użytkownika."
+                          "<hr/>"
+                          f"Lokalizacja bazy danych:<br/> {db_name}")
 
     def json_button_clicked(self):
+        if self.current_project_id == -1:
+            MsgBox('error_dialog', "Export Danych", 'Brak danych do exportu.', QIcon(Const.APP_ICON))
+            return
         application = data_export_prepare(self.logic.project_logic.get_project_data(self.current_project_id),
                                           self.logic.task_logic.get_tasks_list(self.current_project_id),
                                           self.logic.attachment_logic.get_attachment_data(self.current_project_id))
@@ -322,11 +377,6 @@ class MainWindow(QMainWindow):
 
                 MsgBox("ok_dialog", "Export danych", f"Dane zostały wyeksportowane do pliku:\n {filename}",
                        QIcon(Const.APP_ICON))
-                message_text = f"Witam.\n\n" \
-                               f"W załączeniu przekazuję wniosek o regulację terenowo-prawną oraz plik z danymi dla " \
-                               f"zadania: {project_no}.\nProszę o informację komu imiennie została przydzielona " \
-                               f"wnioskowana sprawa do realizacji.\n\nPozdrawiam. "
-                pyperclip.copy(message_text)
 
     def creator_button_clicked(self):
         self.button_clicked('add', Const.PROJECT_TITLE, QIcon(Const.PROJECT_ICON))
@@ -349,7 +399,11 @@ class MainWindow(QMainWindow):
                 next_task = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejną działkę do wniosku',
                                    QIcon(Const.TASK_ICON)).last_user_answer
 
-        next_attachment = True
+        self.add_set_of_standard_attachments()
+
+        next_attachment = MsgBox('ok_cancel_dlg', 'Pytanie', 'Czy dodać kolejny załacznik do wniosku',
+                                 QIcon(Const.TASK_ICON)).last_user_answer
+
         while next_attachment:
             if self.exit:
                 self.exit = False
@@ -367,7 +421,7 @@ class MainWindow(QMainWindow):
         # region Add and Edit operation
         if operation_type == 'add' or operation_type == 'edit':
 
-            # Do not take any action if there is no project.
+            # Do not take any action if there's no project.
             if (
                     panel_name == Const.TASK_TITLE or
                     panel_name == Const.DEVICE_TITLE or
@@ -398,7 +452,12 @@ class MainWindow(QMainWindow):
                 MsgBox('error_dialog', panel_name, message, QIcon(Const.APP_ICON))
                 return
 
+            if operation_type == 'add' and panel_name == Const.ATTACHMENT_TITLE:
+                if self.add_set_of_standard_attachments():
+                    return
+
             WindowManager(panel_name, icon, operation_type, self)
+
         # endregion
 
         # region Delete operation
@@ -521,7 +580,39 @@ class MainWindow(QMainWindow):
         self.logic.update_attachment_table_view('set', -1)
 
     def print_button_clicked(self):
+        if self.current_project_id == -1:
+            MsgBox('error_dialog', "Podgląd Wydruku", 'Brak danych do podglądu', QIcon(Const.APP_ICON))
+            return
         WindowManager(Const.PREVIEW_TITLE, QIcon(Const.PREVIEW_ICON), 'show', self)
+
+    def data_base_manager_window(self):
+        answer = MsgBox("ok_cancel_dlg", "Reset danych",
+                        f"Pytanie:\nCzy usunąć plik bazy danych ?", QIcon(Const.DATABASE_ICON)).last_user_answer
+        if answer:
+            result = self.logic.reset_database()
+            if result:
+                MsgBox('ok_dialog', "Reset danych", 'Wszystkie dane zostały usunięte.\n'
+                                                    'Aplikacja zostanie zamknięta.\n'
+                                                    'Uruchom ją ponownie.', QIcon(Const.APP_ICON))
+                sys.exit()
+            else:
+                MsgBox('error_dialog', 'Reset danych', 'Coś poszło nie tak...', QIcon(Const.APP_ICON))
+        else:
+            return
+
+    def add_set_of_standard_attachments(self):
+        result = self.logic.attachment_logic.get_attachment_list(self.current_project_id)
+        if not result:
+            result.insert(0, (self.current_project_id, 'Uproszczony wypis z rejestru gruntów', 0, 1, ''))
+            result.insert(1, (self.current_project_id, 'Treść formuły uprawnień', 0, 1, ''))
+            result.insert(2, (self.current_project_id, 'Plan sytuacyjny obszaru służebności wraz z dojazdem', 0, 1, ''))
+            self.logic.attachment_logic.add_attachments(result)
+            self.logic.update_attachment_table_view('set', -1)
+            MsgBox("ok_dialog", Const.ATTACHMENT_TITLE, "Zestaw obowiązkowych załączników został dołączony do wniosku.",
+                   QIcon(Const.APP_ICON))
+            return True
+        else:
+            return False
 
 
 def user_window():
@@ -530,9 +621,3 @@ def user_window():
 
 def show_dictionary_window(dictionary_name):
     DictionaryWindow(dictionary_name)
-
-
-def data_base_manager_window():
-    pass
-
-

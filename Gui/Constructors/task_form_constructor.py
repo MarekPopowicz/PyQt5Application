@@ -5,7 +5,7 @@ from Gui.Components.button_panel import ButtonPanel
 from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
-from Logic.tools import test_data
+from Logic.tools import test_data, resource_path
 
 items_edit = {}
 
@@ -29,7 +29,8 @@ class TaskFormConstructor:
         self.parent_logic = MainWindowLogic(parent)
         self.form = form
         self.current_task_id = self.parent_logic.parent.findChild(QTableWidget, Const.TASK_TITLE).object_id
-        with open('Gui/QSS/task_form.qss', 'r') as f:
+        qss_dir = resource_path("Gui\\QSS\\")
+        with open(qss_dir + 'task_form.qss', 'r') as f:
             self.form.setStyleSheet(f.read())
         self.operation = operation
         self.create_details_panel("Szczegóły")
@@ -156,7 +157,10 @@ class TaskFormConstructor:
         obreb = form_data[0]['Obręb'].text()
         wlasciciel = form_data[1]['Właściciel'].toPlainText()
 
-        results.append(test_data(r"[A-Z]{2}\d[A-Z]{1}/\d{8}/\d{1}", kw, 15))
+        nr_kw = kw.upper()
+        form_data[0]['KW'].setText(nr_kw)
+
+        results.append(test_data(r"[A-Z]{2}\d[A-Z]{1}/\d{8}/\d{1}", nr_kw, 15))
         results.append(test_data(r"\d+/\d+|\d+", dz))
         results.append(test_data(r"\d+", am))
         results.append(test_data(r".+", obreb))

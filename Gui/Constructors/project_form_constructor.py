@@ -12,7 +12,7 @@ from Gui.Components.msg_dialogs import MsgBox
 from Gui.Components.searchable_combo import ExtendedComboBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
-from Logic.tools import test_data
+from Logic.tools import test_data, resource_path
 
 
 class ProjectFormConstructor:
@@ -20,7 +20,8 @@ class ProjectFormConstructor:
         self.parent = parent
         self.parent_logic = MainWindowLogic(self.parent)
         self.form = form
-        with open('Gui/QSS/project_form.qss', 'r') as f:
+        qss_dir = resource_path("Gui\\QSS\\")
+        with open(qss_dir + 'project_form.qss', 'r') as f:
             self.form.setStyleSheet(f.read())
         self.operation = operation
         self.create_sap_info_panel('Identyfikacja SAP')
@@ -313,9 +314,16 @@ class ProjectFormConstructor:
         nr = form_data[1]['Nr'].text()
         miejscowosc = form_data[4]['Miejscowość'].currentText()
 
-        results.append(test_data(r"I-WR-(AO|AI|BI)-\d{7}", nr_projektu, 15))
-        results.append(test_data(r"[A-Z]{4}\d{3}", regulacja, 7))
-        results.append(test_data(r"[A-Z]{4}\d{3}", roboczogodziny, 7))
+        np = nr_projektu.upper()
+        form_data[0]['Nr_projektu'].setText(np)
+        rg = regulacja.upper()
+        form_data[0]['Regulacja'].setText(rg)
+        rb = roboczogodziny.upper()
+        form_data[0]['Roboczogodziny'].setText(rb)
+
+        results.append(test_data(r"I-WR-(AO|AI|BI)-\d{7}", np, 15))
+        results.append(test_data(r"[A-Z]{4}\d{3}", rg, 7))
+        results.append(test_data(r"[A-Z]{4}\d{3}", rb, 7))
         results.append(test_data(r".+", nr))
         results.append(test_data(r".+", miejscowosc))
 

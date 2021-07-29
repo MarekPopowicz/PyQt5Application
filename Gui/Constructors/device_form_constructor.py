@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel, QPlainTextEdit, QGroupBox, QVBoxLayout, QComboBox, \
@@ -8,7 +10,7 @@ from Gui.Components.button_panel import ButtonPanel
 from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
-from Logic.tools import test_data
+from Logic.tools import test_data, resource_path
 
 
 def create_item_panel(widget_edit_type, label_name):
@@ -28,7 +30,8 @@ class DeviceFormConstructor:
         self.form = form
         self.current_task_id = self.parent_logic.parent.findChild(QTableWidget, Const.TASK_TITLE).object_id
         self.current_device_id = self.parent_logic.parent.findChild(QTableWidget, Const.DEVICE_TITLE).object_id
-        with open('Gui/QSS/device_form.qss', 'r') as f:
+        qss_dir = resource_path("Gui\\QSS\\")
+        with open(qss_dir + 'device_form.qss', 'r') as f:
             self.form.setStyleSheet(f.read())
         self.operation = operation
         self.create_details_panel("Szczegóły")

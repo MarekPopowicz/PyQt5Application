@@ -1,5 +1,6 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QInputDialog, QDesktopWidget
+import Gui.Components.constants as Const
 
 
 class InputWindow(QWidget):
@@ -28,10 +29,10 @@ class InputWindow(QWidget):
 
         if self.selected_item_value == '':
             dlg.setWindowTitle("Dodaj")
-            self.setWindowIcon(QIcon('Images/star.png'))
+            self.setWindowIcon(QIcon(Const.NEW_ICON))
         else:
             dlg.setWindowTitle("Edytuj")
-            self.setWindowIcon(QIcon('Images/pencil.png'))
+            self.setWindowIcon(QIcon(Const.PENCIL_ICON))
             dlg.setTextValue(self.selected_item_value)
         if self.name == 'Zadania':
             dlg.setLabelText('Zadanie:')

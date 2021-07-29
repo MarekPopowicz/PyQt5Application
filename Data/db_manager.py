@@ -22,7 +22,6 @@ def create_database():
     DataBase.create_table(dbQry.SQL_CREATE_PLACES)
     DataBase.create_table(dbQry.SQL_CREATE_DOCUMENTS)
     DataBase.create_table(dbQry.SQL_CREATE_REGULATIONS)
-    DataBase.create_table(dbQry.SQL_CREATE_NOTARY_OFFICES)
     DataBase.create_table(dbQry.SQL_CREATE_DEVICE_TYPES)
 
     # Set initial users if table is empty
@@ -34,7 +33,6 @@ def create_database():
     DataBase.fill_dictionary("dict_places_names", dbData.PLACES)
     DataBase.fill_dictionary("dict_documents_names", dbData.DOCUMENTS)
     DataBase.fill_dictionary("dict_regulations", dbData.REGULATIONS)
-    DataBase.fill_dictionary("dict_notary_offices", dbData.NOTARY_OFFICES)
     DataBase.fill_dictionary("dict_devices_types", dbData.DEVICE_TYPES)
 
 
@@ -159,7 +157,6 @@ def check_user_table(conn, qry):
 class DBManager:
     def __init__(self):
         create_database()
-        self.if_user_exists()
 
     @staticmethod
     def add_new_item(qry, itm):
@@ -185,7 +182,7 @@ class DBManager:
     def if_user_exists():
         sql = "SELECT count(*) as Total FROM users"
         result = connect(check_user_table, sql)
-        if result[0] == 0:
+        if result is not None and result[0] == 0:
             return False
         else:
             return True

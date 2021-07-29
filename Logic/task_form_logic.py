@@ -66,7 +66,7 @@ class TaskFormLogic:
 
     def get_task(self, task_id):
         query = dbQry.QUERY_SELECT_TASK
-        qry = query.replace('?', task_id)
+        qry = query.replace('?', str(task_id))
         result = DbMan.show_items(qry)
         if len(result) > 0:
             self.task.id = result[0][0]
@@ -83,14 +83,14 @@ class TaskFormLogic:
     @staticmethod
     def delete_task(task_id: str):
         query = dbQry.QUERY_DELETE_TASK
-        qry = query.replace('?', task_id)
+        qry = query.replace('?', str(task_id))
         result = DbMan.delete_item(qry)
         return result
 
     @staticmethod
     def get_tasks_list(project_id):
         query = dbQry.QUERY_SELECT_TASKS
-        qry = query.replace('?', project_id)
+        qry = query.replace('?', str(project_id))
         tasks = DbMan.show_items(qry)
         if len(tasks) > 0:
             return tasks

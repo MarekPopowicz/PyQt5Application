@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtCore import QSizeF
-from PyQt5.QtGui import QIcon, QFont, QTextDocument
+import pyperclip
+from PyQt5.QtGui import QIcon, QTextDocument
 from PyQt5.QtPrintSupport import QPrinter
 
 from PyQt5.QtWidgets import QDialog, QPushButton, QTextEdit, QFileDialog
@@ -9,7 +9,7 @@ from Gui.Components.button_panel import ButtonPanel
 from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
-from Logic.tools import data_export_prepare
+from Logic.tools import data_export_prepare, resource_path
 
 
 class ApplicationFormConstructor:
@@ -17,7 +17,8 @@ class ApplicationFormConstructor:
         self.parent = parent
         self.parent_logic = MainWindowLogic(self.parent)
         self.form = form
-        with open('Gui/QSS/project_form.qss', 'r') as f:
+        qss_dir = resource_path("Gui\\QSS\\")
+        with open(qss_dir + 'project_form.qss', 'r') as f:
             self.form.setStyleSheet(f.read())
         self.operation = operation
         self.document = QTextDocument()
@@ -53,7 +54,7 @@ class ApplicationFormConstructor:
         user_data = self.parent_logic.user_logic.get_current_user()
         project_data = self.parent_logic.project_logic.get_project_data(self.parent.current_project_id)
         editor.setReadOnly(True)
-        user = project_data[0][8].split()
+        user = user_data[0][0].split()
         user_initials = user[0][:3] + user[1][:3]
 
         application = data_export_prepare(
@@ -62,11 +63,19 @@ class ApplicationFormConstructor:
             self.parent_logic.attachment_logic.get_attachment_data(self.parent.current_project_id))
 
         self.current_project = application["projekt"][0][0]
+
+        message_text = f"Witam.\n\n" \
+                       f"W załączeniu przekazuję wniosek nr {user_initials.upper()}/{self.parent.current_project_id}/{project_data[0][9][:4]}, " \
+                       f"z dn. {project_data[0][9]}, o regulację terenowo-prawną\nwraz z załącznikami oraz plikiem danych dla " \
+                       f"zadania: {self.current_project}.\n\nProszę o informację komu imiennie została przydzielona do realizacji " \
+                       f"wnioskowana sprawa.\n\nPozdrawiam. "
+        pyperclip.copy(message_text)
+
         html_header = f"""
                <table  width=100% >
                    <tr>
                        <td>
-                           <img width="100" src="Images/logo.png"/>
+                           <img width="100" src="{Const.TAURON_LOGO}"/>
                        </td>
                        <td style="vertical-align: middle; ">
                            <div style="text-align: center; font-weight: bold;">
@@ -76,7 +85,7 @@ class ApplicationFormConstructor:
                                <span style="font-weight: normal">o regulację praw do nieruchomości pod infrastrukturą elektroenergetyczną.</span>
                                <span style="font-weight: normal"> 
                                    <strong><hr/>Wnioskujący/a: </strong><span style="color: darkblue">{project_data[0][8]}</span>, 
-                                   tel.: (071) {user_data[0][3]}
+                                   tel.: {user_data[0][3]}
                                </span>
                            </div>
 
@@ -91,31 +100,40 @@ class ApplicationFormConstructor:
         else:
             priorytet = "Nie"
 
-        html_project = f""" <table width=100% style="margin-top:5px;"> <tr> <td width=65% style = 
-        'text-align: left; padding-right: 20px '><span style="color: darkblue; text-decoration: underline"><strong>
-        {application['projekt'][0][0]}</strong></span>\t-\t<span style="color: #064420;"><strong>
-        {application['projekt'][0][1]}</strong></span>\t|\t{application['projekt'][0][2]}</td> 
-                        <td width=35% style = 'text-align: right; padding-right: 20px '> <strong>Priorytet: </strong>{priorytet}</td>
-                   </tr>
-                   <tr>
-                       <td width=65%><strong>Urządzenie: </strong>{application['projekt'][0][4]}</td>
-                       <td width=35%><strong>Zakres: </strong>{application['projekt'][0][5]}</td>
-                   </tr>
-                   <tr>
-                       <td><strong>Lokalizacja: </strong>{application['projekt'][0][6]}</td>
-                       <td><strong>Ulica: </strong>{application['projekt'][0][7]}</td>
-                   </tr>
-                   <tr>
-                       <td colspan="2">
-                            <strong>Podstawa: </strong>{application['projekt'][0][10]} nr {application['projekt'][0][11]}, z dn. {application['projekt'][0][12]}
-                       </td>
-                   </tr>
-                   <tr>
-                       <td colspan="2" style="font-style: italic;">
-                            <strong>Uwagi: </strong>{application['projekt'][0][13]}
-                       </td>
-                   </tr>
-               </table>
+        html_project = f""" 
+        <table width=100% style="margin-top:5px;"> 
+        <tr> 
+            <td width=65% style = 'text-align: left; padding-right: 20px '>
+                    <strong>Nr inwestycji: </strong>
+                <span style="color: #BF1363">
+                    <strong>{application['projekt'][0][0]}</strong>
+                </span>\t-\t
+                    {application['projekt'][0][1]}
+                    \t|\t{application['projekt'][0][2]}
+            </td> 
+            <td width=35% style = 'text-align: right; padding-right: 20px '>
+                <strong>Priorytet: </strong>{priorytet}</td>
+        </tr>
+            <tr>
+                <td width=65%><strong>Urządzenie: </strong>{application['projekt'][0][4]}</td>
+                <td width=35%><strong>Zakres: </strong>{application['projekt'][0][5]}</td>
+            </tr>
+            <tr>
+                <td><strong>Lokalizacja: </strong>{application['projekt'][0][6]}</td>
+                <td><strong>Ulica: </strong>{application['projekt'][0][7]}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <strong>Podstawa: </strong>{application['projekt'][0][10]} nr {application['projekt'][0][11]}
+                    , z dn. {application['projekt'][0][12]}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="font-style: italic;">
+                    <strong>Uwagi: </strong>{application['projekt'][0][13]}
+            </td>
+        </tr>
+        </table>
         """
 
         task_list = []
@@ -186,14 +204,20 @@ class ApplicationFormConstructor:
                         device_list.append(urz)
 
             html_dev = ''.join(map(str, device_list))
-            html_device = """<table width=100% border = '1'  bordercolor='#B2B1B9' cellpadding = '2' style=" border-collapse:collapse; margin-bottom:5px; margin-top:3px;">""" + html_dev + """</table>"""
+            html_device = """<table width=100% border = '1'  
+                bordercolor='#B2B1B9' cellpadding = '2' 
+                style=" border-collapse:collapse; 
+                margin-bottom:5px; margin-top:3px;">""" + html_dev + """</table>"""
             device_list.clear()
             html_task = dz + html_device
             task_list.append(html_task)
 
             task_html = ''.join(map(str, task_list))
 
-        html_order = """<div style="width:90%; margin: 15px; text-align: center;"> Wnoszę o uregulowanie praw do nieruchomości dla urządzeń zlokalizowanych na działkach gruntu jak poniżej:</div>"""
+        html_order = """<div style="width:90%; margin: 15px; text-align: center; color: #194350; font-weight: bold"> 
+            Wnoszę o uregulowanie praw do nieruchomości według załączonej formuły uprawnień\n
+            dla urządzeń zlokalizowanych na działkach gruntu jak poniżej:
+        </div>"""
 
         html = html_header + html_project + html_order + task_html + attachment_html
         self.document.setHtml(html)

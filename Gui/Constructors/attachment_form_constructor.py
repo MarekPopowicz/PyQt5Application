@@ -9,7 +9,7 @@ from Gui.Components.button_panel import ButtonPanel
 from Gui.Components.msg_dialogs import MsgBox
 from Logic.main_window_logic import MainWindowLogic
 import Gui.Components.constants as Const
-from Logic.tools import test_data
+from Logic.tools import test_data, resource_path
 
 
 def create_item_panel(widget_edit_type, label_name):
@@ -28,7 +28,8 @@ class AttachmentFormConstructor:
         self.parent_logic = MainWindowLogic(parent)
         self.form = form
         self.current_attachment_id = self.parent_logic.parent.findChild(QTableWidget, Const.ATTACHMENT_TITLE).object_id
-        with open('Gui/QSS/attachment_form.qss', 'r') as f:
+        qss_dir = resource_path("Gui\\QSS\\")
+        with open(qss_dir + 'attachment_form.qss', 'r') as f:
             self.form.setStyleSheet(f.read())
         self.operation = operation
         self.create_details_panel("Szczegóły")
@@ -116,6 +117,7 @@ class AttachmentFormConstructor:
             return
         form_data = self.form.edit_controls
         result = False
+
         attachment_id = self.parent_logic.attachment_logic.button_clicked(form_data, self.operation)
         if attachment_id != 0:
             result = True
@@ -161,3 +163,4 @@ class AttachmentFormConstructor:
             else:
                 result = True
         return result
+

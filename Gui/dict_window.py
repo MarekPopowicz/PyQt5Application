@@ -5,16 +5,19 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QHeaderView, QTab
 from Logic.dict_window_logic import DictionaryWindowLogic
 from Gui.Components.dict_input_window import InputWindow
 from Gui.Components.msg_dialogs import MsgBox
+from Logic.tools import resource_path
+import Gui.Components.constants as Const
 
 
 class DictionaryWindow(QDialog):
     def __init__(self, dictionary_name):
         super().__init__()
-        with open('Gui/QSS/dict_form.qss', 'r') as f:
+        qss_dir = resource_path("Gui\\QSS\\")
+        with open(qss_dir + 'dict_form.qss', 'r') as f:
             self.setStyleSheet(f.read())
-        self.add_icon = QIcon('Images/star.png')
-        self.update_icon = QIcon('Images/pencil.png')
-        self.delete_icon = QIcon('Images/delete.png')
+        self.add_icon = QIcon(Const.NEW_ICON)
+        self.update_icon = QIcon(Const.PENCIL_ICON)
+        self.delete_icon = QIcon(Const.DELETE_ICON)
 
         self.name = dictionary_name
         self.window_logic = DictionaryWindowLogic(self.name)
@@ -38,15 +41,15 @@ class DictionaryWindow(QDialog):
     def set_window_title_and_icon(self):
         self.setWindowTitle(self.name)
         if self.name == 'Zadania':
-            self.setWindowIcon(QIcon('Images/tasks.png'))
+            self.setWindowIcon(QIcon(Const.TASK_ICON))
         elif self.name == 'Ulice':
-            self.setWindowIcon(QIcon('Images/road.png'))
+            self.setWindowIcon(QIcon(Const.STREET_ICON))
         elif self.name == 'Miejscowości':
-            self.setWindowIcon(QIcon('Images/place.png'))
+            self.setWindowIcon(QIcon(Const.PLACE_ICON))
         elif self.name == 'Urządzenia':
-            self.setWindowIcon(QIcon('Images/electricity.png'))
+            self.setWindowIcon(QIcon(Const.DEVICE_ICON))
         elif self.name == 'Dokumenty':
-            self.setWindowIcon(QIcon('Images/attachment.png'))
+            self.setWindowIcon(QIcon(Const.ATTACHMENT_ICON))
 
     def create_table(self):
         font = QFont()
@@ -99,6 +102,14 @@ class DictionaryWindow(QDialog):
 
     def click_me(self, dict_name, operation):
         current_cell_val = self.tableWidget.currentItem().text()
+
+        if current_cell_val == 'Budowa' or \
+                current_cell_val == 'Linia kablowa niskiego napięcia' or \
+                current_cell_val == 'Treść formuły uprawnień':
+            MsgBox('error_dialog', "Słownik", f'Element "{current_cell_val}" nie może zostać\n'
+                                              'usunięty lub zmodyfikowany', self.delete_icon)
+            return
+
         if operation == 'delete':
             response = MsgBox("ok_cancel_dlg", "Usuń", f"Pytanie:\n"
                                                        f"Czy usunąć ze słownika element:\n"
@@ -106,8 +117,8 @@ class DictionaryWindow(QDialog):
                               self.delete_icon).last_user_answer
 
             if response:
-                error = self.window_logic.delete_item(current_cell_val)
-                if error is None:
+                result = self.window_logic.delete_item(current_cell_val)
+                if result:
                     # clear tableWidget
                     self.tableWidget.setRowCount(0)
                     # refill tableWidget with updated set of items
@@ -124,7 +135,7 @@ class DictionaryWindow(QDialog):
                                   self.update_icon).last_user_answer
                 if response:
                     result = self.window_logic.update_item(current_cell_val, updated_item)
-                    if result is None:
+                    if result:
                         # clear tableWidget
                         self.tableWidget.setRowCount(0)
                         # refill tableWidget with updated set of items
@@ -135,10 +146,10 @@ class DictionaryWindow(QDialog):
             # user data validation
             if check_input_value("Dodaj", new_item, self.add_icon):
                 # confirm decision
-                MsgBox("ok_cancel_dlg", "Dodaj",
-                       f"Pytanie:\nCzy dodać element: '{new_item}' do słownika ?",
-                       self.add_icon)
-                if QMessageBox.Ok == 1024:
+                answer = MsgBox("ok_cancel_dlg", "Dodaj",
+                                f"Pytanie:\nCzy dodać element: '{new_item}' do słownika ?",
+                                self.add_icon).last_user_answer
+                if answer:
                     result = self.window_logic.add_item(new_item)
                     if result is not None:
                         # clear tableWidget
