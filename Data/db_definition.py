@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import sys
 from sqlite3 import Error
 
 from PyQt5.QtGui import QIcon
@@ -59,7 +60,7 @@ class DB:
         data = read_doc_lines(file)
 
         # Plik danych zawiera informacje
-        if len(data) > 0:
+        if len(data) != 0:
             path_db = data[0].rstrip('\n')
 
             # Brak pliku w podanej lokalizacji
@@ -78,6 +79,9 @@ class DB:
                     filename, _ = QFileDialog.getOpenFileName(None, "Wskaż lokalizację dotychczasowej bazy danych.",
                                                               os.path.expanduser("~/Desktop/database.db"),
                                                               "DataBase (*.db)")
+                    if filename == '':
+                        open(file, "w").close()
+                        sys.exit()
 
                     db_path = read_doc_lines(file)
                     db_path[0] = filename
@@ -92,11 +96,22 @@ class DB:
 
         # Plik danych nie zawiera informacji
         else:
-            filename, _ = QFileDialog.getSaveFileName(None, "Wybierz lokalizację dla pliku nowej bazy danych.",
-                                                      os.path.expanduser("~/Desktop/database.db"),
-                                                      "DataBase (*.db)")
-            write_to_file(file, filename + '\n', "w")
-            connection = create_connection(filename)
+            answer = MsgBox('ok_cancel_dlg', 'Pytanie', 'Dalsze korzystanie z aplikacji wymaga\nutworzenia bazy '
+                                                        'danych.\n\n'
+                                                        'Czy utworzyć nową bazę danych ?',
+                            QIcon(Const.APP_ICON)).last_user_answer
+            if answer:
+                filename, _ = QFileDialog.getSaveFileName(None, "Wybierz lokalizację nowej bazy danych.",
+                                                          os.path.expanduser("~/Desktop/database.db"),
+                                                          "DataBase (*.db)")
+                if filename == '':
+                    open(file, "w").close()
+                    sys.exit()
+
+                write_to_file(file, filename + '\n', "w")
+                connection = create_connection(filename)
+            else:
+                sys.exit()
 
         return connection
 

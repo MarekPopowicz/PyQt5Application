@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
 
         if not DBManager.if_user_exists():
             MsgBox('ok_dialog', 'Użytkownik',
-                   'Wykryto brak użytkownika\nDalsze korzystanie z aplikacji wymaga rejestracji użytkownika.',
+                   'Wykryto brak użytkownika.\n\nDalsze korzystanie z aplikacji wymaga rejestracji użytkownika.',
                    QIcon(Const.APP_ICON))
             if user_window() > 0:
                 self.show()
@@ -96,6 +96,7 @@ class MainWindow(QMainWindow):
             else:
                 MsgBox('error_dialog', 'Użytkownik', 'Brak autoryzacji użytkownika uniemożliwia wykonanie dalszych '
                                                      'operacji. ', QIcon(Const.APP_ICON))
+                sys.exit()
 
     def check_user_password(self):
         result = self.logic.user_logic.get_current_user()

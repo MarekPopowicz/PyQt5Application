@@ -182,7 +182,7 @@ class DBManager:
     def if_user_exists():
         sql = "SELECT count(*) as Total FROM users"
         result = connect(check_user_table, sql)
-        if result is not None and result[0] == 0:
+        if (result is not None and result[0] == 0) or (result is None):
             return False
         else:
             return True

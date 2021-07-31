@@ -61,4 +61,4 @@ SETTINGS = 'Ustawienia'
 DATABASE = 'Reset Danych'
 ABOUT = 'O programie'
 APPLICATIONS = 'Wnioski'
-APP_NAME = "Twoja Terenówka. (ver. 1.00)"
+APP_NAME = "Twoja Terenówka. (ver. 1.01)"
