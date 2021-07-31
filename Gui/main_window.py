@@ -2,6 +2,7 @@ import json
 import os
 import sys
 
+from Data.db_definition import write_to_file
 from Logic.tools import data_export_prepare, resource_path, read_doc_lines
 from PyQt5.QtCore import pyqtSlot, Qt, QFile
 from PyQt5.QtGui import QIcon, QFont
@@ -21,9 +22,10 @@ from Logic.main_window_logic import MainWindowLogic
 
 class InputPasswordWindow(QWidget):
 
-    def __init__(self, password):
+    def __init__(self, db_user):
         super().__init__()
-        self.password = password
+        self.user = db_user
+        self.password = db_user[0][2]
         self.center()
         self.access = self.verified()
 
@@ -34,6 +36,7 @@ class InputPasswordWindow(QWidget):
         self.move(qr.topLeft())
 
     def verified(self):
+        user_item = ''
         dlg = QInputDialog(self)
         dlg.setCancelButtonText("Anuluj")
         dlg.setLabelText("Podaj hasło:")
@@ -45,6 +48,13 @@ class InputPasswordWindow(QWidget):
             dlg.setWindowTitle(f"Autoryzacja Użytkownika: {user_name}")
         else:
             dlg.setWindowTitle(f"Autoryzacja Użytkownika")
+            # Overwite file with current user data
+            db_path = user_data[0] + '\n'
+            for item in self.user[0]:
+                user_item = user_item + item + '\n'
+            data_to_write = db_path + user_item
+            write_to_file(resource_path("Data\\") + "user_data.txt", data_to_write, "w")
+
         self.setWindowIcon(QIcon(Const.MAN_ICON))
 
         response = False
@@ -102,7 +112,7 @@ class MainWindow(QMainWindow):
         result = self.logic.user_logic.get_current_user()
 
         if len(result[0][2]) > 0:
-            dlg = InputPasswordWindow(result[0][2])
+            dlg = InputPasswordWindow(result)
             if dlg.access:
                 return True
             else:

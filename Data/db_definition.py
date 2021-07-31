@@ -84,7 +84,7 @@ class DB:
                         sys.exit()
 
                     db_path = read_doc_lines(file)
-                    db_path[0] = filename
+                    db_path[0] = filename + '\n'
                     for item in db_path:
                         text = text + item + '\n'
                         write_to_file(file, text, "w")
@@ -97,21 +97,24 @@ class DB:
         # Plik danych nie zawiera informacji
         else:
             answer = MsgBox('ok_cancel_dlg', 'Pytanie', 'Dalsze korzystanie z aplikacji wymaga\nutworzenia bazy '
-                                                        'danych.\n\n'
+                                                        'danych\nlub wskazania istniejącej.\n\n'
                                                         'Czy utworzyć nową bazę danych ?',
                             QIcon(Const.APP_ICON)).last_user_answer
             if answer:
                 filename, _ = QFileDialog.getSaveFileName(None, "Wybierz lokalizację nowej bazy danych.",
                                                           os.path.expanduser("~/Desktop/database.db"),
                                                           "DataBase (*.db)")
-                if filename == '':
-                    open(file, "w").close()
-                    sys.exit()
-
-                write_to_file(file, filename + '\n', "w")
-                connection = create_connection(filename)
             else:
+                filename, _ = QFileDialog.getOpenFileName(None, "Wskaż lokalizację istniejącej bazy danych.",
+                                                          os.path.expanduser("~/Desktop/database.db"),
+                                                          "DataBase (*.db)")
+
+            if filename == '':
+                open(file, "w").close()
                 sys.exit()
+
+            write_to_file(file, filename + '\n', "w")
+            connection = create_connection(filename)
 
         return connection
 

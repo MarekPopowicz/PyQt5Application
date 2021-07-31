@@ -3657,13 +3657,13 @@ REGULATIONS = [
 
 DOCUMENTS = [
     'Decyzja o pozwoleniu na budowę',
+    'Decyzja o warunkach zabudowy',
+    'Wypis z MPZP'
     'Porozumienie z właścicielem terenu',
     'Protokół z negocjacji',
     'Mapa inwentaryzacji geodezji powykonawczej',
-    'Mapa zasadnicza w skali 1 do 500',
-    'Mapa ewidencyjna w skali 1 do 100',
-    'Mapa ewidencyjna w skali 1 do 500',
-    'Mapa ewidencyjna w skali 1 do 1000',
+    'Mapa zasadnicza',
+    'Mapa ewidencyjna',
     'Decyzja o podziale geodezyjnym',
     'Wypis i wyrys z ewidencji gruntów i budynków',
     'Operat szacunkowy',
@@ -3675,12 +3675,10 @@ DOCUMENTS = [
     'Uproszczony wypis z rejestru gruntów',
     'Plan sytuacyjny',
     'Wyciąg z operatu szacunkowego',
+    'Operat szacunkowy',
     'Wydruk z elektronicznego systemu ksiąg wieczystych',
     'Wydruk z korespondencji elektronicznej',
-    'Wniosek o uzyskanie praw do nieruchomości',
-    'Ogłoszenie o przetargu',
-    'Wydruk z elektronicznego systemu Krajowego Rejestru Sądowego',
-    'Uproszczony Wypis z Rejestru Gruntów',
+    'Wydruk z elektronicznego systemu KRS',
     'Treść formuły uprawnień',
     'Warunki uzgodnienia'
 ]
